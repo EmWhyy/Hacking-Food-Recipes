@@ -214,151 +214,151 @@ print("=" * 56)
 
 
 
-# Zutaten = [
-#     "gek. Hülsenfrüchte (rote & braune Berglinsen)",
-#     "Kokosfett",
-#     "Sonnenblumenöl",
-#     "Gewüre (u.a. Senf)",
-#     "Zitronensaft",
-#     "geräuchertes Meersalz",
-#     "Agavendicksaft",
-#     "Shiitake",
-# ]
+Zutaten = [
+    "gek. Hülsenfrüchte (rote & braune Berglinsen)",
+    "Kokosfett",
+    "Sonnenblumenöl",
+    "Gewüre (u.a. Senf)",
+    "Zitronensaft",
+    "geräuchertes Meersalz",
+    "Agavendicksaft",
+    "Shiitake",
+]
 
-# D = len(Zutaten)
-# print(f"{D} ingredients in total")
+D = len(Zutaten)
+print(f"{D} ingredients in total")
 
-# # WE NEED 2D - 1 INEQUALITIES:
-# # * all variables should be >0: (D inequality constraints)
-# # * the i-th variable is larger than the i+1-th variable, for all i in [1,D-1] (D-1 inequalities)
-# #
-# # AND 4 EQUALITIES:
-# # * all variables should sum to 1 (the D-simplex, 1 equality)
-# # * the first variable (gek. Linsen) is 0.66 (1 equality)
-# # * the 2nd and third variables (Fat & Oils) together are equal to 0.25 (1 equality)
-# # * the 6th variable (salt) is 0.015
+# WE NEED 2D - 1 INEQUALITIES:
+# * all variables should be >0: (D inequality constraints)
+# * the i-th variable is larger than the i+1-th variable, for all i in [1,D-1] (D-1 inequalities)
+#
+# AND 4 EQUALITIES:
+# * all variables should sum to 1 (the D-simplex, 1 equality)
+# * the first variable (gek. Linsen) is 0.66 (1 equality)
+# * the 2nd and third variables (Fat & Oils) together are equal to 0.25 (1 equality)
+# * the 6th variable (salt) is 0.015
 
-# # inequalities
-# A = np.zeros((D + D - 1, D))
-# a = np.zeros(D + D - 1)
+# inequalities
+A = np.zeros((D + D - 1, D))
+a = np.zeros(D + D - 1)
 
-# # first, the >=0 inequality
-# A[0:D, 0:D] = -np.eye(D)  # note the minus, for the >= equality
-# a[0:D] = 0
+# first, the >=0 inequality
+A[0:D, 0:D] = -np.eye(D)  # note the minus, for the >= equality
+a[0:D] = 0
 
-# # then the ordering:
-# for i in range(D - 1):
-#     A[D + i, i + 1] = 1
-#     A[D + i, i] = -1
-#     a[D + i] = 0
+# then the ordering:
+for i in range(D - 1):
+    A[D + i, i + 1] = 1
+    A[D + i, i] = -1
+    a[D + i] = 0
 
-# # equalities
-# B = np.zeros((4, D))
-# b = np.zeros(4)
+# equalities
+B = np.zeros((4, D))
+b = np.zeros(4)
 
-# # they all sum to 1:
-# B[0, :] = 1
-# b[0] = 1
+# they all sum to 1:
+B[0, :] = 1
+b[0] = 1
 
-# # the first variable (Linsen) is 0.66:
-# B[1, 0] = 1
-# b[1] = 0.66
+# the first variable (Linsen) is 0.66:
+B[1, 0] = 1
+b[1] = 0.66
 
-# # * the 2nd and third variables (Fat & Oils) together are equal to 0.25 (1 equality)
-# B[2, 1] = 1
-# B[2, 2] = 1
-# b[2] = 0.25
+# * the 2nd and third variables (Fat & Oils) together are equal to 0.25 (1 equality)
+B[2, 1] = 1
+B[2, 2] = 1
+b[2] = 0.25
 
-# # * the 6th variable (salt) is 0.015
-# B[3, 5] = 1
-# b[3] = 0.015
-
-
-# S = int(1e5)
-# SAMPLES = MCMC(A, a, B, b, num_iter=S, thinning=int(S / 100))
-
-# mean_sample = np.mean(SAMPLES, axis=0)
-# std_sample = np.std(SAMPLES, axis=0)
-
-# print(f"MCMC predictions from {SAMPLES.shape[0]:d} (thinned) samples:")
-# print("=" * 66)
-# for i, zutat in enumerate(Zutaten):
-#     print(
-#         "{:>48}".format(zutat)
-#         + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
-#     )
-# print("=" * 66)
-
-# Zutaten = [
-#     "gek. Hülsenfrüchte (rote Linsen)",
-#     "Sonnenblumenöl",
-#     "Kokosfett",
-#     "Tomatenmark",
-#     "geräuchertes Meersalz",
-#     "Gewürze (u.a. Sellerie, Senf)",
-#     "Zitronensaft",
-# ]
-
-# D = len(Zutaten)
-# print(f"{D} ingredients in total")
-
-# # WE NEED 2D - 1 INEQUALITIES:
-# # * all variables should be >0: (D inequality constraints)
-# # * the i-th variable is larger than the i+1-th variable, for all i in [1,D-1] (D-1 inequalities)
-# #
-# # AND 4 EQUALITIES:
-# # * all variables should sum to 1 (the D-simplex, 1 equality)
-# # * the first variable (gek. Linsen) is 0.55 (1 equality)
-# # * the 2nd and third variables (Fat & Oils) together are equal to 0.31 (1 equality)
-# # * the 5th variable (salt) is 0.02
-
-# # inequalities
-# A = np.zeros((D + D - 1, D))
-# a = np.zeros(D + D - 1)
-
-# # first, the >=0 inequality
-# A[0:D, 0:D] = -np.eye(D)  # note the minus, for the >= equality
-# a[0:D] = 0
-
-# # then the ordering:
-# for i in range(D - 1):
-#     A[D + i, i + 1] = 1
-#     A[D + i, i] = -1
-#     a[D + i] = 0
-
-# # equalities
-# B = np.zeros((4, D))
-# b = np.zeros(4)
-
-# # they all sum to 1:
-# B[0, :] = 1
-# b[0] = 1
-
-# # the first variable (Linsen) is 0.55:
-# B[1, 0] = 1
-# b[1] = 0.55
-
-# # * the 2nd and third variables (Fat & Oils) together are equal to 0.31 (1 equality)
-# B[2, 1] = 1
-# B[2, 2] = 1
-# b[2] = 0.31
-
-# # * the 5th variable (salt) is 0.015
-# B[3, 4] = 1
-# b[3] = 0.02
+# * the 6th variable (salt) is 0.015
+B[3, 5] = 1
+b[3] = 0.015
 
 
-# S = int(1e5)
-# SAMPLES = MCMC(A, a, B, b, num_iter=S, thinning=int(S / 100))
+S = int(1e5)
+SAMPLES = MCMC(A, a, B, b, num_iter=S, thinning=int(S / 100))
 
-# mean_sample = np.mean(SAMPLES, axis=0)
-# std_sample = np.std(SAMPLES, axis=0)
+mean_sample = np.mean(SAMPLES, axis=0)
+std_sample = np.std(SAMPLES, axis=0)
 
-# print(f"MCMC predictions from {SAMPLES.shape[0]:d} (thinned) samples:")
-# print("=" * 66)
-# for i, zutat in enumerate(Zutaten):
-#     print(
-#         "{:>48}".format(zutat)
-#         + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
-#     )
-# print("=" * 66)
+print(f"MCMC predictions from {SAMPLES.shape[0]:d} (thinned) samples:")
+print("=" * 66)
+for i, zutat in enumerate(Zutaten):
+    print(
+        "{:>48}".format(zutat)
+        + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
+    )
+print("=" * 66)
+
+Zutaten = [
+    "gek. Hülsenfrüchte (rote Linsen)",
+    "Sonnenblumenöl",
+    "Kokosfett",
+    "Tomatenmark",
+    "geräuchertes Meersalz",
+    "Gewürze (u.a. Sellerie, Senf)",
+    "Zitronensaft",
+]
+
+D = len(Zutaten)
+print(f"{D} ingredients in total")
+
+# WE NEED 2D - 1 INEQUALITIES:
+# * all variables should be >0: (D inequality constraints)
+# * the i-th variable is larger than the i+1-th variable, for all i in [1,D-1] (D-1 inequalities)
+#
+# AND 4 EQUALITIES:
+# * all variables should sum to 1 (the D-simplex, 1 equality)
+# * the first variable (gek. Linsen) is 0.55 (1 equality)
+# * the 2nd and third variables (Fat & Oils) together are equal to 0.31 (1 equality)
+# * the 5th variable (salt) is 0.02
+
+# inequalities
+A = np.zeros((D + D - 1, D))
+a = np.zeros(D + D - 1)
+
+# first, the >=0 inequality
+A[0:D, 0:D] = -np.eye(D)  # note the minus, for the >= equality
+a[0:D] = 0
+
+# then the ordering:
+for i in range(D - 1):
+    A[D + i, i + 1] = 1
+    A[D + i, i] = -1
+    a[D + i] = 0
+
+# equalities
+B = np.zeros((4, D))
+b = np.zeros(4)
+
+# they all sum to 1:
+B[0, :] = 1
+b[0] = 1
+
+# the first variable (Linsen) is 0.55:
+B[1, 0] = 1
+b[1] = 0.55
+
+# * the 2nd and third variables (Fat & Oils) together are equal to 0.31 (1 equality)
+B[2, 1] = 1
+B[2, 2] = 1
+b[2] = 0.31
+
+# * the 5th variable (salt) is 0.015
+B[3, 4] = 1
+b[3] = 0.02
+
+
+S = int(1e5)
+SAMPLES = MCMC(A, a, B, b, num_iter=S, thinning=int(S / 100))
+
+mean_sample = np.mean(SAMPLES, axis=0)
+std_sample = np.std(SAMPLES, axis=0)
+
+print(f"MCMC predictions from {SAMPLES.shape[0]:d} (thinned) samples:")
+print("=" * 66)
+for i, zutat in enumerate(Zutaten):
+    print(
+        "{:>48}".format(zutat)
+        + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
+    )
+print("=" * 66)
