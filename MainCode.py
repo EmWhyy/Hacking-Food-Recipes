@@ -7,74 +7,73 @@ from tueplots import bundles
 from tueplots.constants.color import rgb
 from scipy.optimize import linprog
 
-plt.rcParams.update(bundles.beamer_moml())
-plt.rcParams.update({"figure.dpi": 200})
-
 Zutaten = [
-    "gek. Hülsenfrüchte (braune Berglinsen)",
-    "Kokosfett",
-    "Sonnenblumenöl",
-    "geröstete Zwiebeln (in Sonnenblumenöl)",
-    "Zitronensaft",
-    "Gewürze",
-    "Agavendicksaft",
-    "geräuchertes Meersalz",
-]
+        "gek. Hülsenfrüchte (braune Berglinsen)",
+        "Kokosfett",
+        "Sonnenblumenöl",
+        "geröstete Zwiebeln (in Sonnenblumenöl)",
+        "Zitronensaft",
+        "Gewürze",
+        "Agavendicksaft",
+        "geräuchertes Meersalz",
+    ]
 
-D = len(Zutaten)
-print(f"{D} ingredients in total")
+if __name__ == "__main__":
+    plt.rcParams.update(bundles.beamer_moml())
+    plt.rcParams.update({"figure.dpi": 200})
 
-# WE NEED 2D - 1 INEQUALITIES:
-# * all variables should be >0: (D inequality constraints)
-# * the i-th variable is larger than the i+1-th variable, for all i in [1,D-1] (D-1 inequalities)
-#
-# AND 3 EQUALITIES:
-# * all variables should sum to 1 (the D-simplex, 1 equality)
-# * the first variable (gek. Linsen) is 0.63 (1 equality)
-# * the 8th variable (Salz) is equal to 0.016 (1 equality)
+    D = len(Zutaten)
+    print(f"{D} ingredients in total")
 
-# inequalities
-A = np.zeros((D + D - 1, D))
-a = np.zeros(D + D - 1)
+    # WE NEED 2D - 1 INEQUALITIES:
+    # * all variables should be >0: (D inequality constraints)
+    # * the i-th variable is larger than the i+1-th variable, for all i in [1,D-1] (D-1 inequalities)
+    #
+    # AND 3 EQUALITIES:
+    # * all variables should sum to 1 (the D-simplex, 1 equality)
+    # * the first variable (gek. Linsen) is 0.63 (1 equality)
+    # * the 8th variable (Salz) is equal to 0.016 (1 equality)
 
-# first, the >=0 inequality
-A[0:D, 0:D] = -np.eye(D)  # note the minus, for the >= equality
-a[0:D] = 0
+    # inequalities A <= a
+    A = np.zeros((D + D - 1, D))
+    a = np.zeros(D + D - 1)
 
-# then the ordering:
-for i in range(D - 1):
-    A[D + i, i + 1] = 1
-    A[D + i, i] = -1
-    a[D + i] = 0
+    # first, the >=0 inequality
+    A[0:D, 0:D] = -np.eye(D)  # note the minus, for the >= equality
+    a[0:D] = 0
 
-# equalities
-B = np.zeros((3, D))
-b = np.zeros(3)
+    # then the ordering:
+    for i in range(D - 1):
+        A[D + i, i + 1] = 1
+        A[D + i, i] = -1
+        a[D + i] = 0
 
-# they all sum to 1:
-B[0, :] = 1
-b[0] = 1
+    # equalities B = b
+    B = np.zeros((3, D))
+    b = np.zeros(3)
 
-# the first variable (Linsen) is 0.63:
-B[1, 0] = 1
-b[1] = 0.63
+    # they all sum to 1:
+    B[0, :] = 1
+    b[0] = 1
 
-# * the 8th variable (Salz) is equal to 0.016 (1 equality)
-B[2, 7] = 1
-b[2] = 0.016
+    # the first variable (Linsen) is 0.63:
+    B[1, 0] = 1
+    b[1] = 0.63
 
-plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
-# Set font because it uses a font which is not on every computer
-plt.rcParams['font.family'] = 'Arial'
-fig, axs = plt.subplots(1, 2)
-imA = axs[0].imshow(A, vmin=-1, vmax=1)
-axs[0].set_title("A")
-imB = axs[1].imshow(B, vmin=-1, vmax=1)
-axs[1].set_title("B")
-# fig.colorbar(imA, ax=axs[1]);
-plt.savefig("matrices.pdf")
+    # * the 8th variable (Salz) is equal to 0.016 (1 equality)
+    B[2, 7] = 1
+    b[2] = 0.016
 
-
+    plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
+    # Set font because it uses a font which is not on every computer
+    plt.rcParams['font.family'] = 'Arial'
+    fig, axs = plt.subplots(1, 2)
+    imA = axs[0].imshow(A, vmin=-1, vmax=1)
+    axs[0].set_title("A")
+    imB = axs[1].imshow(B, vmin=-1, vmax=1)
+    axs[1].set_title("B")
+    # fig.colorbar(imA, ax=axs[1]);
+    plt.savefig("matrices.pdf")
 
 
 
@@ -85,11 +84,12 @@ def find_initial_point(A, a, B, b):
     out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b)
     return out.x
 
-x0 = find_initial_point(A, a, B, b)
+if __name__ == "__main__":
+    x0 = find_initial_point(A, a, B, b)
 
-# check your implementation:
-print(f"Test for inequalities: {np.all(A @ x0 - a < 0)}")
-print(f"Test for equalities: {np.allclose(B @ x0 - b,0)}")
+    # check your implementation:
+    print(f"Test for inequalities: {np.all(A @ x0 - a < 0)}")
+    print(f"Test for equalities: {np.allclose(B @ x0 - b,0)}")
 
 def construct_directions(B):
     """
@@ -166,50 +166,52 @@ def MCMC(A, a, B, b, num_iter=int(1e7), thinning=int(1e5)):
 
     return samples[0::thinning, :]
 
-S = int(1e5)
-SAMPLES = MCMC(A, a, B, b, num_iter=S, thinning=int(S / 100))
 
-fig, ax = plt.subplots()
-im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
-ax.set_xlabel("# sample")
-# ax.set_ylabel('ingredient')
-ax.set_yticks(np.arange(D))
-ax.set_yticklabels(Zutaten)
-cb = fig.colorbar(im)
-cb.set_label("$\log_{10} x_i$")
+if __name__ == "__main__":
+    S = int(1e5)
+    SAMPLES = MCMC(A, a, B, b, num_iter=S, thinning=int(S / 100))
 
-# plt.savefig("Leberwurst_Samples.png")
+    fig, ax = plt.subplots()
+    im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
+    ax.set_xlabel("# sample")
+    # ax.set_ylabel('ingredient')
+    ax.set_yticks(np.arange(D))
+    ax.set_yticklabels(Zutaten)
+    cb = fig.colorbar(im)
+    cb.set_label("$\log_{10} x_i$")
+
+    # plt.savefig("Leberwurst_Samples.png")
 
 def acf(x, length=50):
     return np.array([1] + [np.corrcoef(x[:-i], x[i:])[0, 1] for i in range(1, length)])
 
+if __name__ == "__main__":
+    fig, ax = plt.subplots()
+    for i in range(4):
+        ax.plot(acf(SAMPLES[:, i]))
 
-fig, ax = plt.subplots()
-for i in range(4):
-    ax.plot(acf(SAMPLES[:, i]))
-
-ax.axhline(0);
-
-
-#-------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------
+    ax.axhline(0);
 
 
-# SAMPLES = MCMC(A, a, B, b, num_iter=int(1e6), thinning=int(1e4))
-mean_sample = np.mean(SAMPLES, axis=0)
-std_sample = np.std(SAMPLES, axis=0)
+    #-------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------------------------------
 
-print(f"MCMC predictions from {SAMPLES.shape[0]:d} (thinned) samples:")
-print("=" * 56)
-for i, zutat in enumerate(Zutaten):
-    print(
-        "{:>38}".format(zutat)
-        + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
-    )
-print("=" * 56)
+
+    # SAMPLES = MCMC(A, a, B, b, num_iter=int(1e6), thinning=int(1e4))
+    mean_sample = np.mean(SAMPLES, axis=0)
+    std_sample = np.std(SAMPLES, axis=0)
+
+    print(f"MCMC predictions from {SAMPLES.shape[0]:d} (thinned) samples:")
+    print("=" * 56)
+    for i, zutat in enumerate(Zutaten):
+        print(
+            "{:>38}".format(zutat)
+            + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
+        )
+    print("=" * 56)
 
 
 
