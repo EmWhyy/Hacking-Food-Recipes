@@ -5,10 +5,12 @@ from tueplots import bundles
 from tueplots.constants.color import rgb
 
 
-
 # Function to create the needed Equality and Inequality matrices
 # this function might need to be changed in the future when we decide to also consider the Nutritional values of the products
 def createMatrices(Ingredients, givenAmounts):
+    plt.rcParams.update(bundles.beamer_moml())
+    plt.rcParams.update({"figure.dpi": 200})
+
     # Number of Ingredients
     D = len(Ingredients)
     print(f"{D} ingredients in total")
@@ -64,5 +66,24 @@ def createMatrices(Ingredients, givenAmounts):
     # fig.colorbar(imA, ax=axs[1]);
     plt.savefig("matrices.pdf")
 
+    return A, a, B, b
 
-createMatrices(MainCode.Zutaten, [0.63, 0, 0, 0, 0, 0, 0, 0.016])
+
+
+#--------------------------------------------------------------
+# Example
+
+Ingredients = [
+        "gek. Hülsenfrüchte (braune Berglinsen)",
+        "Kokosfett",
+        "Sonnenblumenöl",
+        "geröstete Zwiebeln (in Sonnenblumenöl)",
+        "Zitronensaft",
+        "Gewürze",
+        "Agavendicksaft",
+        "geräuchertes Meersalz",
+    ]
+givenAmounts = [0.63, 0, 0, 0, 0, 0, 0, 0.016]
+
+A, a, B, b = createMatrices(Ingredients, givenAmounts)
+MainCode.Main(Ingredients, A, a, B, b)
