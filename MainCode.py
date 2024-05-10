@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import ticker
@@ -21,20 +22,22 @@ def Main(Zutaten, A, a, B, b):
     S = int(1e5)
     SAMPLES = MCMC(D, A, a, B, b, num_iter=S, thinning=int(S / 100))
 
-    fig, ax = plt.subplots()
-    im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
-    ax.set_xlabel("# sample")
-    # ax.set_ylabel('ingredient')
-    ax.set_yticks(np.arange(D))
-    ax.set_yticklabels(Zutaten)
-    cb = fig.colorbar(im)
-    cb.set_label("$\log_{10} x_i$")
+    output(SAMPLES, Zutaten, D)
 
-    fig, ax = plt.subplots()
-    for i in range(4):
-        ax.plot(acf(SAMPLES[:, i]))
+    # fig, ax = plt.subplots()
+    # im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
+    # ax.set_xlabel("# sample")
+    # # ax.set_ylabel('ingredient')
+    # ax.set_yticks(np.arange(D))
+    # ax.set_yticklabels(Zutaten)
+    # cb = fig.colorbar(im)
+    # cb.set_label("$\log_{10} x_i$")
 
-    ax.axhline(0);
+    # fig, ax = plt.subplots()
+    # for i in range(4):
+    #     ax.plot(acf(SAMPLES[:, i]))
+
+    # ax.axhline(0);
 
 
     #-------------------------------------------------------------------------------------------------------------
@@ -44,23 +47,29 @@ def Main(Zutaten, A, a, B, b):
     #-------------------------------------------------------------------------------------------------------------
 
 
-    # SAMPLES = MCMC(A, a, B, b, num_iter=int(1e6), thinning=int(1e4))
-    mean_sample = np.mean(SAMPLES, axis=0)
-    std_sample = np.std(SAMPLES, axis=0)
 
-    print(f"MCMC predictions from {SAMPLES.shape[0]:d} (thinned) samples:")
-    print("=" * 56)
+def output(samples, Zutaten, D, dish_name = ""):
+    mean_sample = np.mean(samples, axis=0)
+    std_sample = np.std(samples, axis=0)
+
+    print(f"MCMC predictions from {samples.shape[0]:d} (thinned) samples:")
+    print("Dish: ", dish_name)
+    print(f"{D} ingredients in total")
+    print("=" * 66)
     for i, zutat in enumerate(Zutaten):
         print(
-            "{:>38}".format(zutat)
+            "{:>42}".format(zutat)
             + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
         )
-    print("=" * 56)
-
+    print("=" * 66) 
 
 def find_initial_point(A, a, B, b):
     D = A.shape[1]
-    out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b)
+    
+    # Surpress deprecation warning
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b, method="interior-point")
     return out.x
 
 def construct_directions(B):
@@ -122,7 +131,9 @@ def project_and_sample(xi, s, A, a):
 def MCMC(D, A, a, B, b, num_iter=int(1e7), thinning=int(1e5)):
 
     print("finding initial point.")
-    out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b, method="interior-point")
     x0 = out.x.flatten()
 
     print("precomputing space of search directions")
