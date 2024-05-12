@@ -9,7 +9,7 @@ from tueplots.constants.color import rgb
 from scipy.optimize import linprog
 
 
-def Main(Zutaten, A, a, B, b): 
+def Main(Zutaten, A, a, B, b):
     D = len(Zutaten)
 
     x0 = find_initial_point(A, a, B, b)
@@ -23,21 +23,9 @@ def Main(Zutaten, A, a, B, b):
     SAMPLES = MCMC(D, A, a, B, b, num_iter=S, thinning=int(S / 100))
 
     output(SAMPLES, Zutaten, D)
-
-    # fig, ax = plt.subplots()
-    # im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
-    # ax.set_xlabel("# sample")
-    # # ax.set_ylabel('ingredient')
-    # ax.set_yticks(np.arange(D))
-    # ax.set_yticklabels(Zutaten)
-    # cb = fig.colorbar(im)
-    # cb.set_label("$\log_{10} x_i$")
-
-    # fig, ax = plt.subplots()
-    # for i in range(4):
-    #     ax.plot(acf(SAMPLES[:, i]))
-
-    # ax.axhline(0);
+    #plot_matrix(A, B)
+    # plot_sample(SAMPLES, Zutaten, D)
+    #plot_graph(SAMPLES)
 
 
     #-------------------------------------------------------------------------------------------------------------
@@ -149,13 +137,45 @@ def MCMC(D, A, a, B, b, num_iter=int(1e7), thinning=int(1e5)):
 
     return samples[0::thinning, :]
 
-# plt.savefig("Leberwurst_Samples.png")
-
 def acf(x, length=50):
     return np.array([1] + [np.corrcoef(x[:-i], x[i:])[0, 1] for i in range(1, length)])
 
 
+def plot_sample(SAMPLES, Zutaten, D):
+    plt.rcParams['font.family'] = 'Arial'
+    fig, ax = plt.subplots()
+    im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
+    ax.set_xlabel("# sample")
+    # ax.set_ylabel('ingredient')
+    ax.set_yticks(np.arange(D))
+    ax.set_yticklabels(Zutaten)
+    cb = fig.colorbar(im)
+    cb.set_label(r"$\log_{10} x_i$")
+    plt.savefig("Samples.png")
 
+
+def plot_graph(SAMPLES):
+    plt.rcParams['font.family'] = 'Arial'
+    fig, ax = plt.subplots()
+
+    for i in range(4):
+        ax.plot(acf(SAMPLES[:, i]))
+
+    ax.axhline(0);
+    plt.savefig("graph.png")
+
+def plot_matrix(A, B):
+    plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
+    plt.rcParams['font.family'] = 'Arial'
+    # Set font because it uses a font which is not on every computer
+    fig, axs = plt.subplots(1, 2)
+    imA = axs[0].imshow(A, vmin=-1, vmax=1)
+    axs[0].set_title("A")
+    imB = axs[1].imshow(B, vmin=-1, vmax=1)
+    axs[1].set_title("B")
+    # fig.colorbar(imA, ax=axs[1]);
+    plt.savefig("matrices.pdf")
+    
 
 # Zutaten = [
 #     "gek. Hülsenfrüchte (rote & braune Berglinsen)",

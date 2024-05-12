@@ -55,16 +55,16 @@ def createMatrices(Ingredients, givenAmounts):
             b[n - 1] = givenAmounts[i]
             n -= 1
 
-    plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
-    # Set font because it uses a font which is not on every computer
-    plt.rcParams['font.family'] = 'Arial'
-    fig, axs = plt.subplots(1, 2)
-    imA = axs[0].imshow(A, vmin=-1, vmax=1)
-    axs[0].set_title("A")
-    imB = axs[1].imshow(B, vmin=-1, vmax=1)
-    axs[1].set_title("B")
-    # fig.colorbar(imA, ax=axs[1]);
-    plt.savefig("matrices.pdf")
+    # plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
+    # # Set font because it uses a font which is not on every computer
+    # plt.rcParams['font.family'] = 'Arial'
+    # fig, axs = plt.subplots(1, 2)
+    # imA = axs[0].imshow(A, vmin=-1, vmax=1)
+    # axs[0].set_title("A")
+    # imB = axs[1].imshow(B, vmin=-1, vmax=1)
+    # axs[1].set_title("B")
+    # # fig.colorbar(imA, ax=axs[1]);
+    # plt.savefig("matrices.pdf")
 
     return A, a, B, b
 
