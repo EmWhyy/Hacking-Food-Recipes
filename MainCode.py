@@ -7,9 +7,10 @@ from tqdm import tqdm
 from tueplots import bundles
 from tueplots.constants.color import rgb
 from scipy.optimize import linprog
+import flet as ft
+import os
 
-
-def Main(Zutaten, A, a, B, b):
+def Main(Zutaten, A, a, B, b, page: ft.Page, recipe_name: str):
     D = len(Zutaten)
 
     x0 = find_initial_point(A, a, B, b)
@@ -21,35 +22,18 @@ def Main(Zutaten, A, a, B, b):
     # now we can start the MCMC loop
     S = int(1e5)
     SAMPLES = MCMC(D, A, a, B, b, num_iter=S, thinning=int(S / 100))
+    
+    # plots 
+    script_dir = os.path.dirname(__file__)
+    asset_dir = os.path.join(script_dir, "plots")
+    
+    plot_matrix(A, B, asset_dir)
+    plot_sample(SAMPLES, Zutaten, D, asset_dir)
+    plot_graph(SAMPLES, asset_dir)
 
-    output(SAMPLES, Zutaten, D)
-    #plot_matrix(A, B)
-    # plot_sample(SAMPLES, Zutaten, D)
-    #plot_graph(SAMPLES)
+    output(SAMPLES, Zutaten, D, page, recipe_name)
+    
 
-
-    #-------------------------------------------------------------------------------------------------------------
-    #-------------------------------------------------------------------------------------------------------------
-    #-------------------------------------------------------------------------------------------------------------
-    #-------------------------------------------------------------------------------------------------------------
-    #-------------------------------------------------------------------------------------------------------------
-
-
-
-def output(samples, Zutaten, D, dish_name = ""):
-    mean_sample = np.mean(samples, axis=0)
-    std_sample = np.std(samples, axis=0)
-
-    print(f"MCMC predictions from {samples.shape[0]:d} (thinned) samples:")
-    print("Dish: ", dish_name)
-    print(f"{D} ingredients in total")
-    print("=" * 66)
-    for i, zutat in enumerate(Zutaten):
-        print(
-            "{:>42}".format(zutat)
-            + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
-        )
-    print("=" * 66) 
 
 def find_initial_point(A, a, B, b):
     D = A.shape[1]
@@ -141,7 +125,32 @@ def acf(x, length=50):
     return np.array([1] + [np.corrcoef(x[:-i], x[i:])[0, 1] for i in range(1, length)])
 
 
-def plot_sample(SAMPLES, Zutaten, D):
+def output(samples, Zutaten, D, page: ft.Page ,recipe_name = ""):
+    mean_sample = np.mean(samples, axis=0)
+    std_sample = np.std(samples, axis=0)
+
+    page.add(ft.Text("Dish: " + recipe_name))
+    page.add(ft.Text(f"{D} ingredients in total"))
+    page.add(ft.Text("=" * 66))
+    for i, zutat in enumerate(Zutaten):
+        page.add(ft.Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"))
+    page.add(ft.Text("=" * 66))
+    
+    
+
+    print(f"MCMC predictions from {samples.shape[0]:d} (thinned) samples:")
+    print("Dish: ", recipe_name)
+    print(f"{D} ingredients in total")
+    print("=" * 66)
+    for i, zutat in enumerate(Zutaten):
+        print(
+            "{:>42}".format(zutat)
+            + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
+        )
+    print("=" * 66)
+
+
+def plot_sample(SAMPLES, Zutaten, D, path):
     plt.rcParams['font.family'] = 'Arial'
     fig, ax = plt.subplots()
     im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
@@ -151,10 +160,10 @@ def plot_sample(SAMPLES, Zutaten, D):
     ax.set_yticklabels(Zutaten)
     cb = fig.colorbar(im)
     cb.set_label(r"$\log_{10} x_i$")
-    plt.savefig("Samples.png")
+    plt.savefig(os.path.join(path, "Samples.png"))
 
 
-def plot_graph(SAMPLES):
+def plot_graph(SAMPLES, path):
     plt.rcParams['font.family'] = 'Arial'
     fig, ax = plt.subplots()
 
@@ -162,9 +171,10 @@ def plot_graph(SAMPLES):
         ax.plot(acf(SAMPLES[:, i]))
 
     ax.axhline(0);
-    plt.savefig("graph.png")
+    plt.savefig(os.path.join(path, "graph.png"))
 
-def plot_matrix(A, B):
+
+def plot_matrix(A, B, path):
     plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
     plt.rcParams['font.family'] = 'Arial'
     # Set font because it uses a font which is not on every computer
@@ -174,8 +184,11 @@ def plot_matrix(A, B):
     imB = axs[1].imshow(B, vmin=-1, vmax=1)
     axs[1].set_title("B")
     # fig.colorbar(imA, ax=axs[1]);
-    plt.savefig("matrices.pdf")
-    
+    plt.savefig(os.path.join(path, "matrices.png"))
+
+
+
+
 
 # Zutaten = [
 #     "gek. Hülsenfrüchte (rote & braune Berglinsen)",

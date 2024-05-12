@@ -1,5 +1,6 @@
 import MainCode
 import numpy as np
+import flet as ft
 from matplotlib import pyplot as plt
 from tueplots import bundles
 from tueplots.constants.color import rgb
@@ -7,7 +8,7 @@ from tueplots.constants.color import rgb
 
 # Function to create the needed Equality and Inequality matrices
 # this function might need to be changed in the future when we decide to also consider the Nutritional values of the products
-def createMatrices(Ingredients, givenAmounts):
+def createMatrices(Ingredients, givenAmounts, page: ft.Page, recipe_name: str):
     plt.rcParams.update(bundles.beamer_moml())
     plt.rcParams.update({"figure.dpi": 200})
 
@@ -65,9 +66,14 @@ def createMatrices(Ingredients, givenAmounts):
     # axs[1].set_title("B")
     # # fig.colorbar(imA, ax=axs[1]);
     # plt.savefig("matrices.pdf")
+    MainCode.Main(Ingredients, A, a, B, b, page, recipe_name)
+    #return A, a, B, b
 
-    return A, a, B, b
 
+def parseInput(input, page: ft.Page, recipe_name: str):
+    stringArray = [item[0] for item in input]
+    numberArray = [float(item[1]) for item in input]
+    createMatrices(stringArray, numberArray, page, recipe_name)
 
 
 #--------------------------------------------------------------
@@ -85,5 +91,5 @@ Ingredients = [
     ]
 givenAmounts = [0.63, 0, 0, 0, 0, 0, 0, 0.016]
 
-A, a, B, b = createMatrices(Ingredients, givenAmounts)
-MainCode.Main(Ingredients, A, a, B, b)
+#A, a, B, b = createMatrices(Ingredients, givenAmounts)
+# MainCode.Main(Ingredients, A, a, B, b)
