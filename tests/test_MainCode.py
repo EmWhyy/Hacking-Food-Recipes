@@ -1,6 +1,7 @@
 import numpy as np
-
-#import the functions we want to test
+import os 
+import sys 
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))  
 from MainCode import find_initial_point,construct_directions,project_and_sample, MCMC 
 
 #run with: python -m pytest
