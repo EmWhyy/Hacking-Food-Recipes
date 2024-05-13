@@ -5,12 +5,11 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Input
 
-import Input
-
 def main(page: ft.Page):
     # path to Hacking-Food-Recipes
     path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     page.scroll = ft.ScrollMode.ADAPTIVE
+    page.theme_mode = "dark"
     # List to store input rows
     input_rows = []
 

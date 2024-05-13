@@ -51,10 +51,12 @@ def createMatrices(Ingredients, givenAmounts, page: ft.Page, recipe_name: str):
 
     # other equalities given by the givenAmounts:
     for i in range(D):
-        if givenAmounts[i] != 0:
+        if givenAmounts[i] != None:
             B[n - 1, i] = 1
             b[n - 1] = givenAmounts[i]
             n -= 1
+
+    MainCode.Main(Ingredients, A, a, B, b, page, recipe_name)
 
     # plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
     # # Set font because it uses a font which is not on every computer
@@ -66,13 +68,12 @@ def createMatrices(Ingredients, givenAmounts, page: ft.Page, recipe_name: str):
     # axs[1].set_title("B")
     # # fig.colorbar(imA, ax=axs[1]);
     # plt.savefig("matrices.pdf")
-    MainCode.Main(Ingredients, A, a, B, b, page, recipe_name)
     #return A, a, B, b
 
 
 def parseInput(input, page: ft.Page, recipe_name: str):
     stringArray = [item[0] for item in input]
-    numberArray = [float(item[1]) for item in input]
+    numberArray = [float(item[1]) if item[1] != '' else None for item in input]
     createMatrices(stringArray, numberArray, page, recipe_name)
 
 
@@ -89,7 +90,7 @@ Ingredients = [
         "Agavendicksaft",
         "geräuchertes Meersalz",
     ]
-givenAmounts = [0.63, 0, 0, 0, 0, 0, 0, 0.016]
+givenAmounts = [0.63, None, None, None, None, None, None, 0.016]
 
 #A, a, B, b = createMatrices(Ingredients, givenAmounts)
 # MainCode.Main(Ingredients, A, a, B, b)
