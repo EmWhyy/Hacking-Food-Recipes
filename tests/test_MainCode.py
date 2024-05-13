@@ -98,7 +98,34 @@ def test_project_and_sample():
 
 
 #tests MCMC
+def test_MCMC():
+    """
+    D = 8 
 
+    # inequalities
+    A = np.zeros((D + D - 1, D))
+    a = np.zeros(D + D - 1)
+    A[0:D, 0:D] = -np.eye(D) 
+    a[0:D] = 0
+    for i in range(D - 1):
+        A[D + i, i + 1] = 1
+        A[D + i, i] = -1
+        a[D + i] = 0
+
+    # equalities
+    B = np.zeros((3, D))
+    b = np.zeros(3)
+    B[0, :] = 1
+    b[0] = 1
+    B[1, 0] = 1
+    b[1] = 0.63
+    B[2, 7] = 1
+    b[2] = 0.016
+
+    S = int(1e5)
+    SAMPLES = MCMC(A, a, B, b, num_iter=S, thinning=int(S / 100))
+    """
+    
 
 
 
