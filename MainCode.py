@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import ticker
@@ -76,13 +77,13 @@ plt.savefig("matrices.pdf")
 
 
 
-
-
-
-
 def find_initial_point(A, a, B, b):
     D = A.shape[1]
-    out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b)
+    
+    # Surpress deprecation warning
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b, method="interior-point")
     return out.x
 
 x0 = find_initial_point(A, a, B, b)
@@ -150,7 +151,9 @@ def project_and_sample(xi, s, A, a):
 def MCMC(A, a, B, b, num_iter=int(1e7), thinning=int(1e5)):
 
     print("finding initial point.")
-    out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b, method="interior-point")
     x0 = out.x.flatten()
 
     print("precomputing space of search directions")
