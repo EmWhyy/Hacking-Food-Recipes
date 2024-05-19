@@ -9,6 +9,7 @@ from tueplots.constants.color import rgb
 from scipy.optimize import linprog
 import flet as ft
 import os
+import data.DataManager as DataManager
 
 def Main(Zutaten, A, a, B, b, page: ft.Page, recipe_name: str):
     D = len(Zutaten)
@@ -30,6 +31,8 @@ def Main(Zutaten, A, a, B, b, page: ft.Page, recipe_name: str):
     plot_matrix(A, B, asset_dir)
     plot_sample(SAMPLES, Zutaten, D, asset_dir)
     plot_graph(SAMPLES, asset_dir)
+
+    DataManager.save_data(Zutaten, recipe_name)
 
     output(SAMPLES, Zutaten, D, page, recipe_name)
     
@@ -128,15 +131,14 @@ def acf(x, length=50):
 def output(samples, Zutaten, D, page: ft.Page ,recipe_name = ""):
     mean_sample = np.mean(samples, axis=0)
     std_sample = np.std(samples, axis=0)
-
-    page.add(ft.Text("Dish: " + recipe_name))
-    page.add(ft.Text(f"{D} ingredients in total"))
-    page.add(ft.Text("=" * 66))
-    for i, zutat in enumerate(Zutaten):
-        page.add(ft.Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"))
-    page.add(ft.Text("=" * 66))
     
-    
+    if page:
+        page.add(ft.Text("Dish: " + recipe_name))
+        page.add(ft.Text(f"{D} ingredients in total"))
+        page.add(ft.Text("=" * 66))
+        for i, zutat in enumerate(Zutaten):
+            page.add(ft.Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"))
+        page.add(ft.Text("=" * 66))
 
     print(f"MCMC predictions from {samples.shape[0]:d} (thinned) samples:")
     print("Dish: ", recipe_name)
