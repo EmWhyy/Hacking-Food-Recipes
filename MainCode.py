@@ -32,9 +32,10 @@ def Main(Zutaten, A, a, B, b, page: ft.Page, recipe_name: str):
     plot_sample(SAMPLES, Zutaten, D, asset_dir)
     plot_graph(SAMPLES, asset_dir)
 
-    DataManager.save_data(Zutaten, recipe_name)
 
     output(SAMPLES, Zutaten, D, page, recipe_name)
+
+    DataManager.save_data(Zutaten, recipe_name)
     
 
 
@@ -131,7 +132,7 @@ def acf(x, length=50):
 def output(samples, Zutaten, D, page: ft.Page ,recipe_name = ""):
     mean_sample = np.mean(samples, axis=0)
     std_sample = np.std(samples, axis=0)
-    
+
     if page:
         page.add(ft.Text("Dish: " + recipe_name))
         page.add(ft.Text(f"{D} ingredients in total"))
