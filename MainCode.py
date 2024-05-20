@@ -11,7 +11,7 @@ import flet as ft
 import os
 import data.DataManager as DataManager
 
-def Main(Zutaten, A, a, B, b, page: ft.Page, recipe_name: str):
+def Main(Zutaten, A, a, B, b, Nutrients, page: ft.Page, recipe_name: str):
     D = len(Zutaten)
 
     x0 = find_initial_point(A, a, B, b)
@@ -35,7 +35,7 @@ def Main(Zutaten, A, a, B, b, page: ft.Page, recipe_name: str):
 
     output(SAMPLES, Zutaten, D, page, recipe_name)
 
-    DataManager.save_data(Zutaten, recipe_name)
+    DataManager.save_data(Zutaten, Nutrients, recipe_name)
     
 
 

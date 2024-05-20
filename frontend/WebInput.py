@@ -12,6 +12,7 @@ def main(page: ft.Page):
     page.theme_mode = "dark"
     # List to store input rows
     input_rows = []
+    
 
     def add_row(e):
         name_input = ft.TextField(label="Ingredient Name")
@@ -26,7 +27,7 @@ def main(page: ft.Page):
             name_input, number_input = row.controls  
             inputs.append((name_input.value, number_input.value))
             
-        Input.parseInput(inputs, page, recipe_name.value)
+        parseInput(inputs, page, recipe_name.value)
         show_plots()
 
     
@@ -85,10 +86,6 @@ def main(page: ft.Page):
         
 
 
-
-
-
-
     # Buttons
     toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=toggle_dark_mode)
     add_button = ft.ElevatedButton("Add Row", on_click=add_row)
@@ -101,5 +98,12 @@ def main(page: ft.Page):
     recipe_name = ft.TextField(label="Recipe Name")
 
     page.add(recipe_name)
+
+def parseInput(input, page: ft.Page, recipe_name: str, Nutrients = None):
+    stringArray = [item[0] for item in input]
+    numberArray = [float(item[1]) if item[1] != '' else None for item in input]
+    if Nutrients == None:
+        Nutrients = [0,0,0,0,0,0]
+    Input.createMatrices(stringArray, numberArray, Nutrients, page, recipe_name)
     
 ft.app(main)

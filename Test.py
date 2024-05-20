@@ -12,5 +12,6 @@ Ingredients = [
         "Koriander",
     ]
 givenAmounts = [0.63, None, None, None, None, None, None, None, 0.016]
+Nutrients = [0,0,0,0,0,0]
 
-Input.createMatrices(Ingredients, givenAmounts, None, "Test")
+Input.createMatrices(Ingredients, givenAmounts, Nutrients, None, "Test")

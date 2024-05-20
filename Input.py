@@ -8,7 +8,7 @@ from tueplots.constants.color import rgb
 
 # Function to create the needed Equality and Inequality matrices
 # this function might need to be changed in the future when we decide to also consider the Nutritional values of the products
-def createMatrices(Ingredients, givenAmounts, page: ft.Page, recipe_name: str):
+def createMatrices(Ingredients, givenAmounts, Nutrients, page: ft.Page, recipe_name: str):
     plt.rcParams.update(bundles.beamer_moml())
     plt.rcParams.update({"figure.dpi": 200})
 
@@ -56,7 +56,7 @@ def createMatrices(Ingredients, givenAmounts, page: ft.Page, recipe_name: str):
             b[n - 1] = givenAmounts[i]
             n -= 1
 
-    MainCode.Main(Ingredients, A, a, B, b, page, recipe_name)
+    MainCode.Main(Ingredients, A, a, B, b, Nutrients, page, recipe_name)
 
     # plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
     # # Set font because it uses a font which is not on every computer
@@ -69,12 +69,6 @@ def createMatrices(Ingredients, givenAmounts, page: ft.Page, recipe_name: str):
     # # fig.colorbar(imA, ax=axs[1]);
     # plt.savefig("matrices.pdf")
     #return A, a, B, b
-
-
-def parseInput(input, page: ft.Page, recipe_name: str):
-    stringArray = [item[0] for item in input]
-    numberArray = [float(item[1]) if item[1] != '' else None for item in input]
-    createMatrices(stringArray, numberArray, page, recipe_name)
 
 
 #--------------------------------------------------------------
