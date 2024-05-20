@@ -100,10 +100,27 @@ def main(page: ft.Page):
     page.add(recipe_name)
 
 def parseInput(input, page: ft.Page, recipe_name: str, Nutrients = None):
+
+    # Check if the input is valid
+    if len(input) == 0:
+        #<----------- would be nice to give the user a hint that they need to add more ingredients
+        return
+
+    # Parse the input
     stringArray = [item[0] for item in input]
     numberArray = [float(item[1]) if item[1] != '' else None for item in input]
     if Nutrients == None:
         Nutrients = [0,0,0,0,0,0]
+
+
+    # Check if the parsed input is valid
+    if numberArray.count(None) < 2:
+        #<----------- would be nice to give the user a hint that they need at least 2 ingredients without a given amount
+        return 
+    if sum([float(item[1]) if item[1] != '' else 0 for item in input]) >= 1:
+        #<----------- would be nice to give the user a hint that the sum of the ingredients should be less than 1
+        return
+    
     Input.createMatrices(stringArray, numberArray, Nutrients, page, recipe_name)
     
 ft.app(main)
