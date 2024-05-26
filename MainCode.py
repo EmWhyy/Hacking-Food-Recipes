@@ -11,6 +11,10 @@ import flet as ft
 import os
 import data.DataManager as DataManager
 
+import matplotlib
+matplotlib.use('Agg')
+
+
 def Main(Zutaten, A, a, B, b, Nutrients, page: ft.Page, recipe_name: str):
     D = len(Zutaten)
 
@@ -33,9 +37,11 @@ def Main(Zutaten, A, a, B, b, Nutrients, page: ft.Page, recipe_name: str):
     plot_graph(SAMPLES, asset_dir)
 
 
+    #WebInput.MainPage.output2(SAMPLES, Zutaten, D, page, recipe_name)
     output(SAMPLES, Zutaten, D, page, recipe_name)
 
     DataManager.save_data(Zutaten, Nutrients, recipe_name)
+    
     
 
 
@@ -154,41 +160,38 @@ def output(samples, Zutaten, D, page: ft.Page ,recipe_name = ""):
 
 
 def plot_sample(SAMPLES, Zutaten, D, path):
-    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['font.family'] = 'DejaVu Sans'
     fig, ax = plt.subplots()
     im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
     ax.set_xlabel("# sample")
-    # ax.set_ylabel('ingredient')
     ax.set_yticks(np.arange(D))
     ax.set_yticklabels(Zutaten)
     cb = fig.colorbar(im)
     cb.set_label(r"$\log_{10} x_i$")
     plt.savefig(os.path.join(path, "Samples.png"))
-
+    plt.close('all')  # Close the plot
 
 def plot_graph(SAMPLES, path):
-    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['font.family'] = 'DejaVu Sans'
     fig, ax = plt.subplots()
 
     for i in range(4):
         ax.plot(acf(SAMPLES[:, i]))
 
-    ax.axhline(0);
+    ax.axhline(0)
     plt.savefig(os.path.join(path, "graph.png"))
-
+    plt.close('all')  # Close the plot
 
 def plot_matrix(A, B, path):
     plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
-    plt.rcParams['font.family'] = 'Arial'
-    # Set font because it uses a font which is not on every computer
+    plt.rcParams['font.family'] = 'DejaVu Sans'
     fig, axs = plt.subplots(1, 2)
     imA = axs[0].imshow(A, vmin=-1, vmax=1)
     axs[0].set_title("A")
     imB = axs[1].imshow(B, vmin=-1, vmax=1)
     axs[1].set_title("B")
-    # fig.colorbar(imA, ax=axs[1]);
     plt.savefig(os.path.join(path, "matrices.png"))
-
+    plt.close('all')  # Close the plot
 
 
 

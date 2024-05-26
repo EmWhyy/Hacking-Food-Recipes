@@ -5,67 +5,64 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Input
 
-def main(page: ft.Page):
-    # path to Hacking-Food-Recipes
-    path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    
-    # Set the page properties
-    page.scroll = ft.ScrollMode.ADAPTIVE
-    page.auto_scroll = True
-    page.theme_mode = "dark"
-    
-    # List to store input rows
-    input_rows = []
-    plots = []
+class InputManager:
+    def __init__(self,page):
+        self.page = page
+        self.input_rows = []
     
     # Function to add a row
-    def add_row(e):
-        name_input = ft.TextField(label="Ingredient Name",
-                                  border_color= "black" if page.theme_mode == "light" else "white",
-                                  height = 80
-                                  )
-        amount_input = ft.TextField(label="Amount",
-                                    border_color= "black" if page.theme_mode == "light" else "white",
-                                    on_change= textbox_changed,
-                                    keyboard_type=ft.KeyboardType.NUMBER,
-                                    height = 80
-                                    )
+    def add_row(self, e):
+        name_input = ft.TextField(
+            label="Ingredient Name",
+            border_color= "black" if self.page.theme_mode == "light" else "white",
+            height = 80
+            )
+        
+        amount_input = ft.TextField(
+            label="Amount",
+            border_color= "black" if self.page.theme_mode == "light" else "white",
+            on_change= self.textbox_changed,
+            keyboard_type=ft.KeyboardType.NUMBER,
+            height = 80
+            )
         input_row = ft.Row([name_input, amount_input])
-        input_rows.append(input_row)
-        page.add(input_row)
+        self.input_rows.append(input_row)
+        self.page.add(input_row)
+        
+    # Checks the textbox input for valid numbers
+    def textbox_changed(self, e):
+        try:
+            input = float(e.control.value)
+            e.control.border_color = "white"
+            e.control.helper_text = None
+            self.page.update()
+        except:
+            e.control.border_color = "red"
+            e.control.helper_text = "Please enter a number"
+            self.page.update()
     
     # Function to delete a row
-    def delete_row(e):
-        if len(input_rows) > 0:
-            page.remove(input_rows.pop())
+    def delete_row(self, e):
+        if len(self.input_rows) > 0:
+            self.page.remove(self.input_rows.pop())
 
-    # Final function to compute the recipe
-    def compute(e):
+    def get_inputs(self):
         inputs = []
-        for row in input_rows:
-            name_input, amount_input = row.controls  
-            inputs.append((name_input.value, amount_input.value))
-            
-        parseInput(inputs, page, recipe_name.value)
-        remove_plots(e)
-        show_plots()
-
-    def toggle_dark_mode(e):
-        new_border_color = "white" if page.theme_mode == "light" else "black"
-        page.theme_mode = "dark" if page.theme_mode == "light" else "light"
-        recipe_name.border_color = new_border_color
-        
-        for row in input_rows:
+        for row in self.input_rows:
             name_input, amount_input = row.controls
-            name_input.border_color = new_border_color
-            if not (amount_input.border_color == "red"):
-                amount_input.border_color = new_border_color
-        
-        page.update()
-        
-    # Function to show the plots  
-    def show_plots():
-        asset_path = path + "/plots"
+            inputs.append((name_input.value, amount_input.value))
+        return inputs
+
+class Plots:
+    def __init__(self, page):
+        self.page = page
+        # path to Hacking-Food-Recipes
+        self.path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        self.plots = []
+
+ # Function to show the plots  
+    def show_plots(self):
+        asset_path = self.path + "/plots"
         # test if the file exists
         image_files = ["graph.png", "Samples.png", "matrices.png"]
 
@@ -78,84 +75,97 @@ def main(page: ft.Page):
                     fit=ft.ImageFit.CONTAIN,
                     border_radius=1,
                 )
-                plots.append(img)
-                page.add(img)
-                page.update()
+                self.plots.append(img)
+                self.page.add(img)
+                self.page.update()
                 
             else:
-                page.add(Text("No " + file + " found"))
+                self.page.add(Text("No " + file + " found"))
     
-    def remove_plots(e):
-        if len(plots) > 0:
-            for i in range(len(plots)):
-                page.remove(plots.pop())
-                page.update()
+    def remove_plots(self,e):
+        if len(self.plots) > 0:
+            for i in range(len(self.plots)):
+                self.page.remove(self.plots.pop())
+                self.page.update()
 
-    # Checks the textbox input for valid numbers
-    def textbox_changed(e):
-        try:
-            input = float(e.control.value)
-            e.control.border_color = "white"
-            e.control.helper_text = None
-            page.update()
-        except:
-            e.control.border_color = "red"
-            e.control.helper_text = "Please enter a number"
-            page.update()
-
-    # Hard coded positions for the floating buttons
-    def pos_floating_button(add_button, delete_button):
-        page.overlay.extend([add_button, delete_button])
+    
+class MainPage:
+    def __init__(self, page):
+        self.page = page
+        self.InputManager = InputManager(page)
+        self.Plots = Plots(page)
         
+    def build(self):
+        # page settings
+        self.page.scroll = ft.ScrollMode.ADAPTIVE
+        self.page.auto_scroll = True
+        self.page.theme_mode = "dark"
+        
+        # Buttons
+        toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode)
+        compute_button = ft.ElevatedButton("Compute", on_click=self.compute)
+        add_button = self.create_floating_button(ft.icons.ADD, self.InputManager.add_row, "Add new row", 120, ft.colors.BLUE_200)
+        delete_button = self.create_floating_button(ft.icons.REMOVE, self.InputManager.delete_row, "Delete row", 10, ft.colors.RED_200)
+    
+        self.page.overlay.extend([add_button, delete_button])
+        self.position_floating_button(add_button, delete_button)
+    
+        # name of the recipe
+        self.recipe_name = ft.TextField(
+            label="Recipe Name",
+            border_color= "black" if self.page.theme_mode == "light" else "white",
+            height = 80)
+        
+        self.page.add(ft.Row([compute_button,toggle_dark_mode_button]))
+        self.page.add(self.recipe_name)
+        
+
+    # Function to create a floating button
+    def create_floating_button(self, icon, on_click, tooltip, right, bgcolor):
+        return ft.FloatingActionButton(
+            content=ft.Row([ft.Icon(icon)], alignment="center", spacing=5),
+            on_click=on_click,
+            shape=ft.RoundedRectangleBorder(radius=5),
+            width=100,
+            mini=True,
+            tooltip=tooltip,
+            bgcolor=bgcolor,
+            right=right,
+            bottom=20
+        )
+        
+    # Hard coded positions for the floating buttons
+    def position_floating_button(self,add_button, delete_button):
         add_button.top = None
         add_button.left = None
-        add_button.bottom = 20
-        add_button.right = 120
 
         delete_button.top = None
-        delete_button.left = None
-        delete_button.bottom = 20
-        delete_button.right = 10
+        delete_button.left = None 
+
+    def toggle_dark_mode(self, e):
+        new_border_color = "white" if self.page.theme_mode == "light" else "black"
+        self.page.theme_mode = "dark" if self.page.theme_mode == "light" else "light"
+        self.recipe_name.border_color = new_border_color
+        
+        for row in self.InputManager.input_rows:
+            name_input, amount_input = row.controls
+            name_input.border_color = new_border_color
+            if not (amount_input.border_color == "red"):
+                amount_input.border_color = new_border_color
+        
+        self.page.update()
+        
+    def compute(self, e):
+        inputs = self.InputManager.get_inputs()
+        parseInput(inputs, self.page, self.recipe_name.value)
+        self.Plots.remove_plots(e)
+        self.Plots.show_plots()
         
         
 
-    toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=toggle_dark_mode)
-    compute_button = ft.ElevatedButton("Compute", on_click=compute)
-    add_button = ft.FloatingActionButton(
-        content=ft.Row(
-            [ft.Icon(ft.icons.ADD)], alignment="center", spacing=5
-        ),
-        on_click=add_row,
-        shape=ft.RoundedRectangleBorder(radius=5),
-        width=100,
-        mini=True,
-        tooltip="Add new row"
-    )
-    
-    
-    delete_button = ft.FloatingActionButton(
-        content=ft.Row(
-            [ft.Icon(ft.icons.REMOVE)], alignment="center", spacing=5
-        ),
-        on_click=delete_row,
-        bgcolor=ft.colors.RED_200,
-        shape= ft.RoundedRectangleBorder(radius=5),
-        width=100,
-        mini=True,
-        tooltip="Delete row"
-        )
-    
-    pos_floating_button(add_button, delete_button)
-    
-    # Add buttons to the page
-    page.add(ft.Row([compute_button,toggle_dark_mode_button]))
-    
-    # name of the recipe
-    recipe_name = ft.TextField(label="Recipe Name",
-                               border_color= "black" if page.theme_mode == "light" else "white",
-                               height = 80)
-    page.add(recipe_name)
-
+def main(page: ft.Page):
+    main_page = MainPage(page)
+    main_page.build()
 
     # test area 
     # text = []
@@ -187,7 +197,7 @@ def main(page: ft.Page):
 def parseInput(input, page: ft.Page, recipe_name: str, Nutrients = None):
 
     # Check if the input is valid
-    if len(input) == 0:
+    if len(input) <= 3:
         #<----------- would be nice to give the user a hint that they need to add more ingredients
         return
 
