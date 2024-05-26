@@ -66,8 +66,8 @@ def main(page: ft.Page):
             if os.path.exists(asset_path + "/" + file):
                 img = ft.Image(
                     src=asset_path + "/" + file,
-                    width=800,
-                    height=800,
+                    width=900,
+                    height=350,
                     fit=ft.ImageFit.CONTAIN,
                     border_radius=1,
                 )
@@ -75,11 +75,8 @@ def main(page: ft.Page):
                 page.update()
             else:
                 page.add(Text("No " + file + " found"))
-    
-
 
     def textbox_changed(e):
-        
         try:
             input = float(e.control.value)
             e.control.border_color = "white"
@@ -104,7 +101,8 @@ def main(page: ft.Page):
     
     # name of the recipe
     recipe_name = ft.TextField(label="Recipe Name",
-                               border_color= "black" if page.theme_mode == "light" else "white")
+                               border_color= "black" if page.theme_mode == "light" else "white",
+                               height = 80)
     page.add(recipe_name)
     
 
