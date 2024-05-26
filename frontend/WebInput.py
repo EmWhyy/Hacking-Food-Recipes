@@ -16,6 +16,7 @@ def main(page: ft.Page):
     
     # List to store input rows
     input_rows = []
+    plots = []
     
     # Function to add a row
     def add_row(e):
@@ -46,6 +47,7 @@ def main(page: ft.Page):
             inputs.append((name_input.value, amount_input.value))
             
         parseInput(inputs, page, recipe_name.value)
+        remove_plots(e)
         show_plots()
 
     def toggle_dark_mode(e):
@@ -76,10 +78,18 @@ def main(page: ft.Page):
                     fit=ft.ImageFit.CONTAIN,
                     border_radius=1,
                 )
+                plots.append(img)
                 page.add(img)
                 page.update()
+                
             else:
                 page.add(Text("No " + file + " found"))
+    
+    def remove_plots(e):
+        if len(plots) > 0:
+            for i in range(len(plots)):
+                page.remove(plots.pop())
+                page.update()
 
     # Checks the textbox input for valid numbers
     def textbox_changed(e):
@@ -147,6 +157,33 @@ def main(page: ft.Page):
     page.add(recipe_name)
 
 
+    # test area 
+    # text = []
+    
+    # def printo(e):
+    #     new_text = ft.Text("Hello World")
+    #     text.append(new_text)
+    #     page.add(new_text)
+    #     page.update()
+    
+    # def deleto(e):
+    #     if len(text) > 0:
+    #         page.remove(text.pop())
+    #         page.update()
+        
+    
+    # test_button = ft.ElevatedButton("Test", on_click=printo)
+    # test_button2 = ft.ElevatedButton("Test", on_click=remove_plots)
+    
+    
+    # page.add(ft.Row([test_button, test_button2]))
+    
+    
+    
+    
+    
+    
+    
 def parseInput(input, page: ft.Page, recipe_name: str, Nutrients = None):
 
     # Check if the input is valid
