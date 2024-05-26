@@ -39,9 +39,11 @@ def Main(Zutaten, A, a, B, b, Nutrients, page: ft.Page, recipe_name: str):
 
 
     #WebInput.MainPage.output2(SAMPLES, Zutaten, D, page, recipe_name)
-    output(SAMPLES, Zutaten, D, page, recipe_name)
+    # output(SAMPLES, Zutaten, D, page, recipe_name)
 
     DataManager.save_data(Zutaten, Nutrients, recipe_name)
+    
+    return SAMPLES
     
     
 

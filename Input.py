@@ -56,8 +56,9 @@ def createMatrices(Ingredients, givenAmounts, Nutrients, page: ft.Page, recipe_n
             b[n - 1] = givenAmounts[i]
             n -= 1
 
-    MainCode.Main(Ingredients, A, a, B, b, Nutrients, page, recipe_name)
+    result = MainCode.Main(Ingredients, A, a, B, b, Nutrients, page, recipe_name)
 
+    return result
     # plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
     # # Set font because it uses a font which is not on every computer
     # plt.rcParams['font.family'] = 'Arial'

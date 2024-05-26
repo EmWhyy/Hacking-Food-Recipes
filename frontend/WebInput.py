@@ -1,4 +1,5 @@
 import flet as ft
+import numpy as np
 from flet import TextField,ElevatedButton, Text
 import sys
 import os
@@ -82,7 +83,7 @@ class Plots:
             else:
                 self.page.add(Text("No " + file + " found"))
     
-    def remove_plots(self,e):
+    def remove_plots(self):
         if len(self.plots) > 0:
             for i in range(len(self.plots)):
                 self.page.remove(self.plots.pop())
@@ -94,6 +95,17 @@ class MainPage:
         self.page = page
         self.InputManager = InputManager(page)
         self.Plots = Plots(page)
+        self.text_elements = []
+    
+    def new_recipe(self, e):
+        self.delete_output_text()
+        self.Plots.remove_plots()
+        if self.InputManager.input_rows:
+            for row in self.InputManager.input_rows:
+                self.page.remove(row)
+                self.page.update()
+            self.InputManager.input_rows = []
+        self.page.update()
         
     def build(self):
         # page settings
@@ -104,6 +116,7 @@ class MainPage:
         # Buttons
         toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode)
         compute_button = ft.ElevatedButton("Compute", on_click=self.compute)
+        new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe)
         add_button = self.create_floating_button(ft.icons.ADD, self.InputManager.add_row, "Add new row", 120, ft.colors.BLUE_200)
         delete_button = self.create_floating_button(ft.icons.REMOVE, self.InputManager.delete_row, "Delete row", 10, ft.colors.RED_200)
     
@@ -116,7 +129,7 @@ class MainPage:
             border_color= "black" if self.page.theme_mode == "light" else "white",
             height = 80)
         
-        self.page.add(ft.Row([compute_button,toggle_dark_mode_button]))
+        self.page.add(ft.Row([compute_button,toggle_dark_mode_button,new_recipe_button]))
         self.page.add(self.recipe_name)
         
 
@@ -157,42 +170,66 @@ class MainPage:
         
     def compute(self, e):
         inputs = self.InputManager.get_inputs()
-        parseInput(inputs, self.page, self.recipe_name.value)
-        self.Plots.remove_plots(e)
+        
+        ingredients = [item[0] for item in inputs]
+        values_input = [item[1] for item in inputs]
+        if len(inputs) < 4:
+            self.page.show_snack_bar(
+                ft.SnackBar(
+                    ft.Text("Provide more then 4 ingredients"), 
+                    open=True,
+                    bgcolor=ft.colors.RED_200)
+            )
+            return
+        
+        # two values muss be without a given amount
+        if values_input.count('') < 2:
+            self.page.show_snack_bar(
+                ft.SnackBar(
+                    ft.Text("Provide at least 2 ingredients without a given amount"), 
+                    open=True,
+                    bgcolor=ft.colors.RED_200)
+            )
+            return
+        
+        SAMPLES = parseInput(inputs, self.page, self.recipe_name.value)
+        self.delete_output_text()
+        self.output(SAMPLES,ingredients)
+        self.Plots.remove_plots()
         self.Plots.show_plots()
         
         
-
+    def output(self, samples, ingredients):
+        mean_sample = np.mean(samples, axis=0)
+        std_sample = np.std(samples, axis=0)
+        
+        recipe_name = self.recipe_name.value
+        length = len(ingredients)
+        
+        self.text_elements = [
+            Text("Dish: " + recipe_name),
+            Text(f"{length} ingredients in total"),
+            Text("=" * 66)
+            ]
+        for i, zutat in enumerate(ingredients):
+            self.text_elements.append(Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"))
+        self.text_elements.append(Text("=" * 66))
+        
+        
+        for element in self.text_elements:
+            self.page.add(element)
+        
+    def delete_output_text(self):
+        if self.text_elements:
+            for i in range(len(self.text_elements)):
+                self.page.remove(self.text_elements.pop())
+                self.page.update()
+    
+        
 def main(page: ft.Page):
     main_page = MainPage(page)
     main_page.build()
-
-    # test area 
-    # text = []
-    
-    # def printo(e):
-    #     new_text = ft.Text("Hello World")
-    #     text.append(new_text)
-    #     page.add(new_text)
-    #     page.update()
-    
-    # def deleto(e):
-    #     if len(text) > 0:
-    #         page.remove(text.pop())
-    #         page.update()
-        
-    
-    # test_button = ft.ElevatedButton("Test", on_click=printo)
-    # test_button2 = ft.ElevatedButton("Test", on_click=remove_plots)
-    
-    
-    # page.add(ft.Row([test_button, test_button2]))
-    
-    
-    
-    
-    
-    
+ 
     
 def parseInput(input, page: ft.Page, recipe_name: str, Nutrients = None):
 
@@ -216,6 +253,7 @@ def parseInput(input, page: ft.Page, recipe_name: str, Nutrients = None):
         #<----------- would be nice to give the user a hint that the sum of the ingredients should be less than 1
         return
     
-    Input.createMatrices(stringArray, numberArray, Nutrients, page, recipe_name)
+    result = Input.createMatrices(stringArray, numberArray, Nutrients, page, recipe_name)
+    return result
     
 ft.app(main)
