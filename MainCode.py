@@ -1,7 +1,7 @@
 import warnings
 import numpy as np
+import matplotlib
 from matplotlib import pyplot as plt
-from matplotlib import ticker
 from numpy.random import rand, randn
 from tqdm import tqdm
 from tueplots import bundles
@@ -11,8 +11,9 @@ import flet as ft
 import os
 import data.DataManager as DataManager
 
-import matplotlib
+warnings.filterwarnings("ignore", category=UserWarning)
 matplotlib.use('Agg')
+
 
 
 def Main(Zutaten, A, a, B, b, Nutrients, page: ft.Page, recipe_name: str):
@@ -160,7 +161,7 @@ def output(samples, Zutaten, D, page: ft.Page ,recipe_name = ""):
 
 
 def plot_sample(SAMPLES, Zutaten, D, path):
-    plt.rcParams['font.family'] = 'DejaVu Sans'
+    plt.rcParams['font.family'] = 'Arial'
     fig, ax = plt.subplots()
     im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
     ax.set_xlabel("# sample")
@@ -172,7 +173,7 @@ def plot_sample(SAMPLES, Zutaten, D, path):
     plt.close('all')  # Close the plot
 
 def plot_graph(SAMPLES, path):
-    plt.rcParams['font.family'] = 'DejaVu Sans'
+    plt.rcParams['font.family'] = 'Arial'
     fig, ax = plt.subplots()
 
     for i in range(4):
@@ -184,7 +185,7 @@ def plot_graph(SAMPLES, path):
 
 def plot_matrix(A, B, path):
     plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
-    plt.rcParams['font.family'] = 'DejaVu Sans'
+    plt.rcParams['font.family'] = 'Arial'
     fig, axs = plt.subplots(1, 2)
     imA = axs[0].imshow(A, vmin=-1, vmax=1)
     axs[0].set_title("A")
