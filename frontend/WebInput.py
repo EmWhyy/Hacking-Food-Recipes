@@ -12,7 +12,7 @@ class InputManager:
         self.input_rows = []
     
     # Function to add a row
-    def add_row(self, e):
+    def add_row(self, e):       
         name_input = ft.TextField(
             label="Ingredient Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
@@ -62,10 +62,13 @@ class Plots:
         self.plots = []
 
  # Function to show the plots  
-    def show_plots(self):
+    def show_plots(self,e):
+        self.page.auto_scroll = False
         asset_path = self.path + "/plots"
         # test if the file exists
         image_files = ["graph.png", "Samples.png", "matrices.png"]
+        if len(self.plots) > 0:
+            return
 
         for file in image_files:
             if os.path.exists(asset_path + "/" + file):
@@ -82,8 +85,9 @@ class Plots:
                 
             else:
                 self.page.add(Text("No " + file + " found"))
+        self.page.auto_scroll = True
     
-    def remove_plots(self):
+    def remove_plots(self,e):
         if len(self.plots) > 0:
             for i in range(len(self.plots)):
                 self.page.remove(self.plots.pop())
@@ -117,8 +121,11 @@ class MainPage:
         toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode)
         compute_button = ft.ElevatedButton("Compute", on_click=self.compute)
         new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe)
+        show_plots_button = ft.ElevatedButton("Show Plots", on_click=self.Plots.show_plots)
+        close_plots_button = ft.ElevatedButton("Close Plots", on_click=self.Plots.remove_plots)
         add_button = self.create_floating_button(ft.icons.ADD, self.InputManager.add_row, "Add new row", 120, ft.colors.BLUE_200)
         delete_button = self.create_floating_button(ft.icons.REMOVE, self.InputManager.delete_row, "Delete row", 10, ft.colors.RED_200)
+        
     
         self.page.overlay.extend([add_button, delete_button])
         self.position_floating_button(add_button, delete_button)
@@ -129,7 +136,7 @@ class MainPage:
             border_color= "black" if self.page.theme_mode == "light" else "white",
             height = 80)
         
-        self.page.add(ft.Row([compute_button,toggle_dark_mode_button,new_recipe_button]))
+        self.page.add(ft.Row([compute_button,toggle_dark_mode_button,new_recipe_button, show_plots_button,close_plots_button]))
         self.page.add(self.recipe_name)
         
 
@@ -156,6 +163,7 @@ class MainPage:
         delete_button.left = None 
 
     def toggle_dark_mode(self, e):
+        self.page.auto_scroll = False
         new_border_color = "white" if self.page.theme_mode == "light" else "black"
         self.page.theme_mode = "dark" if self.page.theme_mode == "light" else "light"
         self.recipe_name.border_color = new_border_color
@@ -167,6 +175,7 @@ class MainPage:
                 amount_input.border_color = new_border_color
         
         self.page.update()
+        self.page.auto_scroll = True
         
     def compute(self, e):
         inputs = self.InputManager.get_inputs()
@@ -196,7 +205,6 @@ class MainPage:
         self.delete_output_text()
         self.output(SAMPLES,ingredients)
         self.Plots.remove_plots()
-        self.Plots.show_plots()
         
         
     def output(self, samples, ingredients):
