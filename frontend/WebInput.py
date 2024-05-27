@@ -183,15 +183,24 @@ class MainPage:
         if Nutrients == None:
             Nutrients = [0,0,0,0,0,0]
 
+        if not self.validate_input(ingredients, values_input, Nutrients):
+            return
+
+        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page, self.recipe_name.value)
+        self.delete_output_text()
+        self.output(SAMPLES,ingredients)
+        self.remove_plots(e)
+
+    def validate_input(self, ingredients, values_input, Nutrients):
         # Check if the input is valid
-        if len(inputs) < 4:
+        if len(ingredients) < 4:
             self.page.show_snack_bar(
                 ft.SnackBar(
                     ft.Text("Provide more then 4 ingredients"), 
                     open=True,
                     bgcolor=ft.colors.RED_200)
             )
-            return
+            return False
         
         # two values muss be without a given amount
         if values_input.count(None) < 2:
@@ -201,20 +210,17 @@ class MainPage:
                     open=True,
                     bgcolor=ft.colors.RED_200)
             )
-            return
-        if sum([float(item[1]) if item[1] != '' else 0 for item in inputs]) >= 1:
+            return False
+        
+        if sum(values_input) >= 1:
             self.page.show_snack_bar(
                 ft.SnackBar(
                     ft.Text("The given amounts should be less than 1"), 
                     open=True,
                     bgcolor=ft.colors.RED_200)
             )
-            return
-
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page, self.recipe_name.value)
-        self.delete_output_text()
-        self.output(SAMPLES,ingredients)
-        self.remove_plots(e)
+            return False
+        return True
         
         
     def output(self, samples, ingredients):
