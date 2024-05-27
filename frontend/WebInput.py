@@ -177,7 +177,13 @@ class MainPage:
         inputs = self.get_inputs()
         
         ingredients = [item[0] for item in inputs]
-        values_input = [item[1] for item in inputs]
+        values_input = [float(item[1]) if item[1] != '' else None for item in inputs]
+
+        Nutrients =  None       # Nutrients should be provided in the input later on
+        if Nutrients == None:
+            Nutrients = [0,0,0,0,0,0]
+
+        # Check if the input is valid
         if len(inputs) < 4:
             self.page.show_snack_bar(
                 ft.SnackBar(
@@ -188,7 +194,7 @@ class MainPage:
             return
         
         # two values muss be without a given amount
-        if values_input.count('') < 2:
+        if values_input.count(None) < 2:
             self.page.show_snack_bar(
                 ft.SnackBar(
                     ft.Text("Provide at least 2 ingredients without a given amount"), 
@@ -196,11 +202,19 @@ class MainPage:
                     bgcolor=ft.colors.RED_200)
             )
             return
-        
-        SAMPLES = parseInput(inputs, self.page, self.recipe_name.value)
+        if sum([float(item[1]) if item[1] != '' else 0 for item in inputs]) >= 1:
+            self.page.show_snack_bar(
+                ft.SnackBar(
+                    ft.Text("The given amounts should be less than 1"), 
+                    open=True,
+                    bgcolor=ft.colors.RED_200)
+            )
+            return
+
+        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page, self.recipe_name.value)
         self.delete_output_text()
         self.output(SAMPLES,ingredients)
-        self.remove_plots()
+        self.remove_plots(e)
         
         
     def output(self, samples, ingredients):
@@ -233,31 +247,5 @@ class MainPage:
 def main(page: ft.Page):
     main_page = MainPage(page)
     main_page.build()
- 
-    
-def parseInput(input, page: ft.Page, recipe_name: str, Nutrients = None):
-
-    # Check if the input is valid
-    if len(input) <= 3:
-        #<----------- would be nice to give the user a hint that they need to add more ingredients
-        return
-
-    # Parse the input
-    stringArray = [item[0] for item in input]
-    numberArray = [float(item[1]) if item[1] != '' else None for item in input]
-    if Nutrients == None:
-        Nutrients = [0,0,0,0,0,0]
-
-
-    # Check if the parsed input is valid
-    if numberArray.count(None) < 2:
-        #<----------- would be nice to give the user a hint that they need at least 2 ingredients without a given amount
-        return 
-    if sum([float(item[1]) if item[1] != '' else 0 for item in input]) >= 1:
-        #<----------- would be nice to give the user a hint that the sum of the ingredients should be less than 1
-        return
-    
-    result = Input.createMatrices(stringArray, numberArray, Nutrients, page, recipe_name)
-    return result
     
 ft.app(main)

@@ -10,8 +10,9 @@ from scipy.optimize import linprog
 import flet as ft
 import os
 import data.DataManager as DataManager
+import logging
 
-warnings.filterwarnings("ignore", category=UserWarning)
+logging.getLogger('matplotlib.font_manager').disabled = True
 matplotlib.use('Agg')
 
 
