@@ -17,7 +17,7 @@ matplotlib.use('Agg')
 
 
 
-def Main(Zutaten, A, a, B, b, Nutrients, page: ft.Page, recipe_name: str):
+def Main(Zutaten, A, a, B, b, Nutrients):
     D = len(Zutaten)
 
     x0 = find_initial_point(A, a, B, b)

@@ -186,7 +186,7 @@ class MainPage:
         if not self.validate_input(ingredients, values_input, Nutrients):
             return
 
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page, self.recipe_name.value)
+        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
         self.delete_output_text()
         self.output(SAMPLES,ingredients)
         self.remove_plots(e)
