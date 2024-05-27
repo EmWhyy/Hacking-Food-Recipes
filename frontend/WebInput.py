@@ -212,7 +212,7 @@ class MainPage:
             )
             return False
         
-        if sum(values_input) >= 1:
+        if sum([float(value) if value != None else 0 for value in values_input]) >= 1:
             self.page.show_snack_bar(
                 ft.SnackBar(
                     ft.Text("The given amounts should be less than 1"), 
