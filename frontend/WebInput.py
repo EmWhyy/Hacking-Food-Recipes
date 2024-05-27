@@ -6,13 +6,23 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Input
 
-class InputManager:
-    def __init__(self,page):
+class MainPage:
+    def __init__(self, page):
         self.page = page
+        self.path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        self.text_elements = []
         self.input_rows = []
+        self.plots = []
+        
     
     # Function to add a row
-    def add_row(self, e):       
+    def add_row(self, e):
+        if len(self.text_elements) > 0:
+            self.delete_output_text()
+        if len(self.plots) > 0:
+            self.remove_plots(e)
+            
+            
         name_input = ft.TextField(
             label="Ingredient Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
@@ -54,12 +64,6 @@ class InputManager:
             inputs.append((name_input.value, amount_input.value))
         return inputs
 
-class Plots:
-    def __init__(self, page):
-        self.page = page
-        # path to Hacking-Food-Recipes
-        self.path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        self.plots = []
 
  # Function to show the plots  
     def show_plots(self,e):
@@ -94,21 +98,14 @@ class Plots:
                 self.page.update()
 
     
-class MainPage:
-    def __init__(self, page):
-        self.page = page
-        self.InputManager = InputManager(page)
-        self.Plots = Plots(page)
-        self.text_elements = []
-    
     def new_recipe(self, e):
         self.delete_output_text()
-        self.Plots.remove_plots()
-        if self.InputManager.input_rows:
-            for row in self.InputManager.input_rows:
+        self.remove_plots(e)
+        if self.input_rows:
+            for row in self.input_rows:
                 self.page.remove(row)
                 self.page.update()
-            self.InputManager.input_rows = []
+            self.input_rows = []
         self.page.update()
         
     def build(self):
@@ -121,12 +118,11 @@ class MainPage:
         toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode)
         compute_button = ft.ElevatedButton("Compute", on_click=self.compute)
         new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe)
-        show_plots_button = ft.ElevatedButton("Show Plots", on_click=self.Plots.show_plots)
-        close_plots_button = ft.ElevatedButton("Close Plots", on_click=self.Plots.remove_plots)
-        add_button = self.create_floating_button(ft.icons.ADD, self.InputManager.add_row, "Add new row", 120, ft.colors.BLUE_200)
-        delete_button = self.create_floating_button(ft.icons.REMOVE, self.InputManager.delete_row, "Delete row", 10, ft.colors.RED_200)
+        show_plots_button = ft.ElevatedButton("Show Plots", on_click=self.show_plots)
+        close_plots_button = ft.ElevatedButton("Close Plots", on_click=self.remove_plots)
+        add_button = self.create_floating_button(ft.icons.ADD, self.add_row, "Add new row", 120, ft.colors.BLUE_200)
+        delete_button = self.create_floating_button(ft.icons.REMOVE, self.delete_row, "Delete row", 10, ft.colors.RED_200)
         
-    
         self.page.overlay.extend([add_button, delete_button])
         self.position_floating_button(add_button, delete_button)
     
@@ -168,7 +164,7 @@ class MainPage:
         self.page.theme_mode = "dark" if self.page.theme_mode == "light" else "light"
         self.recipe_name.border_color = new_border_color
         
-        for row in self.InputManager.input_rows:
+        for row in self.input_rows:
             name_input, amount_input = row.controls
             name_input.border_color = new_border_color
             if not (amount_input.border_color == "red"):
@@ -178,7 +174,7 @@ class MainPage:
         self.page.auto_scroll = True
         
     def compute(self, e):
-        inputs = self.InputManager.get_inputs()
+        inputs = self.get_inputs()
         
         ingredients = [item[0] for item in inputs]
         values_input = [item[1] for item in inputs]
@@ -204,7 +200,7 @@ class MainPage:
         SAMPLES = parseInput(inputs, self.page, self.recipe_name.value)
         self.delete_output_text()
         self.output(SAMPLES,ingredients)
-        self.Plots.remove_plots()
+        self.remove_plots()
         
         
     def output(self, samples, ingredients):
