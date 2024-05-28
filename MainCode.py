@@ -1,7 +1,7 @@
 import warnings
 import numpy as np
+import matplotlib
 from matplotlib import pyplot as plt
-from matplotlib import ticker
 from numpy.random import rand, randn
 from tqdm import tqdm
 from tueplots import bundles
@@ -9,8 +9,15 @@ from tueplots.constants.color import rgb
 from scipy.optimize import linprog
 import flet as ft
 import os
+import data.DataManager as DataManager
+import logging
 
-def Main(Zutaten, A, a, B, b, page: ft.Page, recipe_name: str):
+logging.getLogger('matplotlib.font_manager').disabled = True
+matplotlib.use('Agg')
+
+
+
+def Main(Zutaten, A, a, B, b, Nutrients):
     D = len(Zutaten)
 
     x0 = find_initial_point(A, a, B, b)
@@ -31,7 +38,14 @@ def Main(Zutaten, A, a, B, b, page: ft.Page, recipe_name: str):
     plot_sample(SAMPLES, Zutaten, D, asset_dir)
     plot_graph(SAMPLES, asset_dir)
 
-    output(SAMPLES, Zutaten, D, page, recipe_name)
+
+    #WebInput.MainPage.output2(SAMPLES, Zutaten, D, page, recipe_name)
+    # output(SAMPLES, Zutaten, D, page, recipe_name)
+
+    # DataManager.save_data(Zutaten, Nutrients, recipe_name)
+    
+    return SAMPLES
+    
     
 
 
@@ -129,14 +143,13 @@ def output(samples, Zutaten, D, page: ft.Page ,recipe_name = ""):
     mean_sample = np.mean(samples, axis=0)
     std_sample = np.std(samples, axis=0)
 
-    page.add(ft.Text("Dish: " + recipe_name))
-    page.add(ft.Text(f"{D} ingredients in total"))
-    page.add(ft.Text("=" * 66))
-    for i, zutat in enumerate(Zutaten):
-        page.add(ft.Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"))
-    page.add(ft.Text("=" * 66))
-    
-    
+    if page:
+        page.add(ft.Text("Dish: " + recipe_name))
+        page.add(ft.Text(f"{D} ingredients in total"))
+        page.add(ft.Text("=" * 66))
+        for i, zutat in enumerate(Zutaten):
+            page.add(ft.Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"))
+        page.add(ft.Text("=" * 66))
 
     print(f"MCMC predictions from {samples.shape[0]:d} (thinned) samples:")
     print("Dish: ", recipe_name)
@@ -155,13 +168,12 @@ def plot_sample(SAMPLES, Zutaten, D, path):
     fig, ax = plt.subplots()
     im = ax.imshow(np.log10(SAMPLES.T), aspect="auto")
     ax.set_xlabel("# sample")
-    # ax.set_ylabel('ingredient')
     ax.set_yticks(np.arange(D))
     ax.set_yticklabels(Zutaten)
     cb = fig.colorbar(im)
     cb.set_label(r"$\log_{10} x_i$")
     plt.savefig(os.path.join(path, "Samples.png"))
-
+    plt.close('all')  # Close the plot
 
 def plot_graph(SAMPLES, path):
     plt.rcParams['font.family'] = 'Arial'
@@ -170,22 +182,20 @@ def plot_graph(SAMPLES, path):
     for i in range(4):
         ax.plot(acf(SAMPLES[:, i]))
 
-    ax.axhline(0);
+    ax.axhline(0)
     plt.savefig(os.path.join(path, "graph.png"))
-
+    plt.close('all')  # Close the plot
 
 def plot_matrix(A, B, path):
     plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
     plt.rcParams['font.family'] = 'Arial'
-    # Set font because it uses a font which is not on every computer
     fig, axs = plt.subplots(1, 2)
     imA = axs[0].imshow(A, vmin=-1, vmax=1)
     axs[0].set_title("A")
     imB = axs[1].imshow(B, vmin=-1, vmax=1)
     axs[1].set_title("B")
-    # fig.colorbar(imA, ax=axs[1]);
     plt.savefig(os.path.join(path, "matrices.png"))
-
+    plt.close('all')  # Close the plot
 
 
 
