@@ -9,6 +9,7 @@ from tueplots.constants.color import rgb
 from scipy.optimize import linprog
 import flet as ft
 import os
+from time import sleep
 #import data.DataManager as DataManager
 import logging
 
@@ -16,8 +17,7 @@ logging.getLogger('matplotlib.font_manager').disabled = True
 matplotlib.use('Agg')
 
 
-
-def execute_mcmc(Zutaten, A, a, B, b, Nutrients):
+def execute_mcmc(Zutaten, A, a, B, b, Nutrients, page: ft.Page):
     D = len(Zutaten)
 
     x0 = find_initial_point(A, a, B, b)
@@ -28,7 +28,7 @@ def execute_mcmc(Zutaten, A, a, B, b, Nutrients):
 
     # now we can start the MCMC loop
     S = int(1e5)
-    SAMPLES = MCMC(D, A, a, B, b, num_iter=S, thinning=int(S / 100))
+    SAMPLES = MCMC(D, A, a, B, b,page, num_iter=S, thinning=int(S / 100))
     
     # plots 
     script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -114,9 +114,10 @@ def project_and_sample(xi, s, A, a):
 
     return xi + a * s
 
-def MCMC(D, A, a, B, b, num_iter=int(1e7), thinning=int(1e5)):
+def MCMC(D, A, a, B, b,page: ft.Page, num_iter=int(1e7), thinning=int(1e5)):
 
     print("finding initial point.")
+    # Surpress deprecation warning
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b, method="interior-point")
@@ -129,9 +130,30 @@ def MCMC(D, A, a, B, b, num_iter=int(1e7), thinning=int(1e5)):
     samples = np.zeros(shape=(num_iter, D))
     samples[0, :] = x0
     xi = x0
+    
+    
+    # show progress bar in flet UI
+    progress_bar = []
+    pb = ft.ProgressBar(width=800)
+    progress_bar.append(pb)
+    page.add(progress_bar[0])
+    
     for i in tqdm(range(num_iter - 1)):
         xi = project_and_sample(xi, sample(), A, a)
         samples[i + 1, :] = xi
+        
+        
+        if i % (num_iter // 100) == 0:
+            
+            pb.value = i/num_iter
+            sleep(0.01)
+            page.update()
+            
+    # timer for 0.3 second 
+    sleep(0.3)
+    page.remove(progress_bar.pop())
+    page.update()
+          
 
     return samples[0::thinning, :]
 
@@ -139,28 +161,28 @@ def acf(x, length=50):
     return np.array([1] + [np.corrcoef(x[:-i], x[i:])[0, 1] for i in range(1, length)])
 
 
-def output(samples, Zutaten, D, page: ft.Page ,recipe_name = ""):
-    mean_sample = np.mean(samples, axis=0)
-    std_sample = np.std(samples, axis=0)
+# def output(samples, Zutaten, D, page: ft.Page ,recipe_name = ""):
+#     mean_sample = np.mean(samples, axis=0)
+#     std_sample = np.std(samples, axis=0)
 
-    if page:
-        page.add(ft.Text("Dish: " + recipe_name))
-        page.add(ft.Text(f"{D} ingredients in total"))
-        page.add(ft.Text("=" * 66))
-        for i, zutat in enumerate(Zutaten):
-            page.add(ft.Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"))
-        page.add(ft.Text("=" * 66))
+#     if page:
+#         page.add(ft.Text("Dish: " + recipe_name))
+#         page.add(ft.Text(f"{D} ingredients in total"))
+#         page.add(ft.Text("=" * 66))
+#         for i, zutat in enumerate(Zutaten):
+#             page.add(ft.Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"))
+#         page.add(ft.Text("=" * 66))
 
-    print(f"MCMC predictions from {samples.shape[0]:d} (thinned) samples:")
-    print("Dish: ", recipe_name)
-    print(f"{D} ingredients in total")
-    print("=" * 66)
-    for i, zutat in enumerate(Zutaten):
-        print(
-            "{:>42}".format(zutat)
-            + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
-        )
-    print("=" * 66)
+#     print(f"MCMC predictions from {samples.shape[0]:d} (thinned) samples:")
+#     print("Dish: ", recipe_name)
+#     print(f"{D} ingredients in total")
+#     print("=" * 66)
+#     for i, zutat in enumerate(Zutaten):
+#         print(
+#             "{:>42}".format(zutat)
+#             + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"
+#         )
+#     print("=" * 66)
 
 
 def plot_sample(SAMPLES, Zutaten, D, path):

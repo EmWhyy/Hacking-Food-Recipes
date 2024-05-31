@@ -179,8 +179,14 @@ class MainPage:
         self.page.auto_scroll = True
         
     def compute(self, e):
+        # delete the output text and the plots
+        self.delete_output_text()
+        self.remove_plots(e)
+        
+        # get the inputs from the textfields
         inputs = self.get_inputs()
         
+        # parse the inputs
         ingredients = [item[0] for item in inputs]
         values_input = [float(item[1]) if item[1] != '' else None for item in inputs]
 
@@ -191,10 +197,11 @@ class MainPage:
         if not self.validate_input(ingredients, values_input, Nutrients):
             return
 
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
-        self.delete_output_text()
+        # call the backend function
+        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
+        
         self.output(SAMPLES,ingredients)
-        self.remove_plots(e)
+        
 
     def validate_input(self, ingredients, values_input, Nutrients):
         # Check if the input is valid
