@@ -9,7 +9,7 @@ from tueplots.constants.color import rgb
 from scipy.optimize import linprog
 import flet as ft
 import os
-import data.DataManager as DataManager
+#import data.DataManager as DataManager
 import logging
 
 logging.getLogger('matplotlib.font_manager').disabled = True
@@ -17,7 +17,7 @@ matplotlib.use('Agg')
 
 
 
-def Main(Zutaten, A, a, B, b, Nutrients):
+def execute_mcmc(Zutaten, A, a, B, b, Nutrients):
     D = len(Zutaten)
 
     x0 = find_initial_point(A, a, B, b)
@@ -31,7 +31,7 @@ def Main(Zutaten, A, a, B, b, Nutrients):
     SAMPLES = MCMC(D, A, a, B, b, num_iter=S, thinning=int(S / 100))
     
     # plots 
-    script_dir = os.path.dirname(__file__)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
     asset_dir = os.path.join(script_dir, "plots")
     
     plot_matrix(A, B, asset_dir)

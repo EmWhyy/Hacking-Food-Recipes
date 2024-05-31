@@ -1,4 +1,4 @@
-import MainCode
+import backend.MainCode as MainCode
 import numpy as np
 import flet as ft
 from matplotlib import pyplot as plt
@@ -56,7 +56,7 @@ def createMatrices(Ingredients, givenAmounts, Nutrients):
             b[n - 1] = givenAmounts[i]
             n -= 1
 
-    result = MainCode.Main(Ingredients, A, a, B, b, Nutrients)
+    result = MainCode.execute_mcmc(Ingredients, A, a, B, b, Nutrients)
 
     return result
     # plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))

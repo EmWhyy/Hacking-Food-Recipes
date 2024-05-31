@@ -1,4 +1,4 @@
-import Input
+import backend.Input as Input
 
 Ingredients = [
         "gek. Hülsenfrüchte (braune Berglinsen)",

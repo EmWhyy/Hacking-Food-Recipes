@@ -3,13 +3,12 @@ import numpy as np
 from flet import TextField,ElevatedButton, Text
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-import Input
+import backend.Input as Input
 
 class MainPage:
     def __init__(self, page):
         self.page = page
-        self.path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        self.path = os.path.dirname(os.path.realpath(__file__))
         self.text_elements = []
         self.input_rows = []
         self.plots = []
@@ -68,16 +67,17 @@ class MainPage:
  # Function to show the plots  
     def show_plots(self,e):
         self.page.auto_scroll = False
-        asset_path = self.path + "/plots"
+        plots_path = os.path.join(self.path, 'backend', 'plots')
+        
         # test if the file exists
         image_files = ["graph.png", "Samples.png", "matrices.png"]
         if len(self.plots) > 0:
             return
 
         for file in image_files:
-            if os.path.exists(asset_path + "/" + file):
+            if os.path.exists(plots_path + "/" + file):
                 img = ft.Image(
-                    src=asset_path + "/" + file,
+                    src=plots_path + "/" + file,
                     width=900,
                     height=350,
                     fit=ft.ImageFit.CONTAIN,
@@ -88,7 +88,12 @@ class MainPage:
                 self.page.update()
                 
             else:
-                self.page.add(Text("No " + file + " found"))
+                self.page.show_snack_bar(
+                    ft.SnackBar(
+                        ft.Text("Plots not found!"), 
+                        open=True,
+                        bgcolor=ft.colors.RED_200)
+                    )
         self.page.auto_scroll = True
     
     def remove_plots(self,e):
