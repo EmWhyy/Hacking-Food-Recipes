@@ -12,8 +12,10 @@ class MainPage:
         self.text_elements = []
         self.input_rows = []
         self.plots = []
+        self.computing = False
         
-    
+
+# Input region 
     # Function to add a row
     def add_row(self, e):
         if len(self.text_elements) > 0:
@@ -62,8 +64,9 @@ class MainPage:
             name_input, amount_input = row.controls
             inputs.append((name_input.value, amount_input.value))
         return inputs
+# Input region end
 
-
+# Plot region
  # Function to show the plots  
     def show_plots(self,e):
         self.page.auto_scroll = False
@@ -102,17 +105,10 @@ class MainPage:
                 self.page.remove(self.plots.pop())
                 self.page.update()
 
-    
-    def new_recipe(self, e):
-        self.delete_output_text()
-        self.remove_plots(e)
-        if self.input_rows:
-            for row in self.input_rows:
-                self.page.remove(row)
-                self.page.update()
-            self.input_rows = []
-        self.page.update()
-        
+# Plot region end
+
+# main page region
+   
     def build(self):
         # page settings
         self.page.scroll = ft.ScrollMode.ADAPTIVE
@@ -139,8 +135,49 @@ class MainPage:
         
         self.page.add(ft.Row([compute_button,toggle_dark_mode_button,new_recipe_button, show_plots_button,close_plots_button]))
         self.page.add(self.recipe_name)
-        
 
+    def compute(self, e):
+        
+        # stops the user from clicking the compute button multiple times
+        if self.computing:
+            self.popup_snackbar("Please wait until the computation is finished", ft.colors.RED_200)
+            return
+        
+        inputs = self.get_inputs()
+        
+        ingredients = [item[0] for item in inputs]
+        values_input = [float(item[1]) if item[1] != '' else None for item in inputs]
+
+        Nutrients =  None       # Nutrients should be provided in the input later on
+        if Nutrients == None:
+            Nutrients = [0,0,0,0,0,0]
+
+        if not self.validate_input(ingredients, values_input, Nutrients):
+            return
+        
+        # set the computing flag to True
+        self.computing = True
+        
+        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
+        self.delete_output_text()
+        self.output(SAMPLES,ingredients)
+        self.remove_plots(e)
+        
+        # set the computing flag to False
+        self.computing = False 
+        
+        
+    # deletes everything so user can start a new recipe
+    def new_recipe(self, e):
+        self.delete_output_text()
+        self.remove_plots(e)
+        if self.input_rows:
+            for row in self.input_rows:
+                self.page.remove(row)
+                self.page.update()
+            self.input_rows = []
+        self.page.update()
+        
     # Function to create a floating button
     def create_floating_button(self, icon, on_click, tooltip, right, bgcolor):
         return ft.FloatingActionButton(
@@ -178,43 +215,17 @@ class MainPage:
         self.page.update()
         self.page.auto_scroll = True
         
-    def compute(self, e):
-        inputs = self.get_inputs()
-        
-        ingredients = [item[0] for item in inputs]
-        values_input = [float(item[1]) if item[1] != '' else None for item in inputs]
 
-        Nutrients =  None       # Nutrients should be provided in the input later on
-        if Nutrients == None:
-            Nutrients = [0,0,0,0,0,0]
-
-        if not self.validate_input(ingredients, values_input, Nutrients):
-            return
-
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
-        self.delete_output_text()
-        self.output(SAMPLES,ingredients)
-        self.remove_plots(e)
 
     def validate_input(self, ingredients, values_input, Nutrients):
         # Check if the input is valid
         if len(ingredients) < 4:
-            self.page.show_snack_bar(
-                ft.SnackBar(
-                    ft.Text("Provide more then 4 ingredients"), 
-                    open=True,
-                    bgcolor=ft.colors.RED_200)
-            )
+            self.popup_snackbar("Provide at least 4 ingredients", ft.colors.RED_200)
             return False
         
         # two values muss be without a given amount
         if values_input.count(None) < 2:
-            self.page.show_snack_bar(
-                ft.SnackBar(
-                    ft.Text("Provide at least 2 ingredients without a given amount"), 
-                    open=True,
-                    bgcolor=ft.colors.RED_200)
-            )
+            self.popup_snackbar("Provide at least 2 ingredients without a given amount", ft.colors.RED_200)
             return False
         
         if sum([float(value) if value != None else 0 for value in values_input]) >= 1:
@@ -253,6 +264,15 @@ class MainPage:
             for i in range(len(self.text_elements)):
                 self.page.remove(self.text_elements.pop())
                 self.page.update()
+    
+    # Function to show a snackbar wich pops up from the bottom of the screen and shows a message
+    def popup_snackbar(self, text, color):
+        self.page.show_snack_bar(
+            ft.SnackBar(
+                ft.Text(text), 
+                open=True,
+                bgcolor= color)
+            )
     
         
 def main(page: ft.Page):
