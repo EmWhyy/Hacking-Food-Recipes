@@ -68,7 +68,6 @@ class MainPage:
     def show_plots(self,e):
         self.page.auto_scroll = False
         plots_path = os.path.join(self.path, 'backend', 'plots')
-        
         # test if the file exists
         image_files = ["graph.png", "Samples.png", "matrices.png"]
         if len(self.plots) > 0:
@@ -77,7 +76,7 @@ class MainPage:
         for file in image_files:
             if os.path.exists(plots_path + "/" + file):
                 img = ft.Image(
-                    src=plots_path + "/" + file,
+                    src=file,
                     width=900,
                     height=350,
                     fit=ft.ImageFit.CONTAIN,
@@ -259,4 +258,4 @@ def main(page: ft.Page):
     main_page = MainPage(page)
     main_page.build()
     
-ft.app(main)
+ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="backend\plots")
