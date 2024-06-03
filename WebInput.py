@@ -187,34 +187,34 @@ class MainPage:
         if Nutrients == None:
             Nutrients = [0,0,0,0,0,0]
 
-        if not self.validate_input(ingredients, values_input, Nutrients):
-            return
+    #    if not self.validate_input(ingredients, values_input, Nutrients):
+    #        return
 
         SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
         self.delete_output_text()
         self.output(SAMPLES,ingredients)
         self.remove_plots(e)
 
-    def validate_input(self, ingredients, values_input, Nutrients):
-        # Check if the input is valid
-        if len(ingredients) < 4:
-            self.page.show_snack_bar(
-                ft.SnackBar(
-                    ft.Text("Provide more then 4 ingredients"), 
-                    open=True,
-                    bgcolor=ft.colors.RED_200)
-            )
-            return False
+    # def validate_input(self, ingredients, values_input, Nutrients):
+    #     # Check if the input is valid
+    #     if len(ingredients) < 4:
+    #         self.page.show_snack_bar(
+    #             ft.SnackBar(
+    #                 ft.Text("Provide more then 4 ingredients"), 
+    #                 open=True,
+    #                 bgcolor=ft.colors.RED_200)
+    #         )
+    #         return False
         
         # two values muss be without a given amount
-        if values_input.count(None) < 2:
-            self.page.show_snack_bar(
-                ft.SnackBar(
-                    ft.Text("Provide at least 2 ingredients without a given amount"), 
-                    open=True,
-                    bgcolor=ft.colors.RED_200)
-            )
-            return False
+        # if values_input.count(None) < 2:
+        #     self.page.show_snack_bar(
+        #         ft.SnackBar(
+        #             ft.Text("Provide at least 2 ingredients without a given amount"), 
+        #             open=True,
+        #             bgcolor=ft.colors.RED_200)
+        #     )
+        #     return False
         
         if sum([float(value) if value != None else 0 for value in values_input]) >= 1:
             self.page.show_snack_bar(
