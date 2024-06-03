@@ -257,5 +257,7 @@ class MainPage:
 def main(page: ft.Page):
     main_page = MainPage(page)
     main_page.build()
-    
-ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/plots")
+ 
+# Swap between the two lines below to run the app in the browser or in the terminal   
+ft.app(main, assets_dir="./backend/plots")   
+# ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/plots")
