@@ -193,31 +193,10 @@ class MainPage:
         if not self.validate_input(ingredients, values_input, Nutrients):
             return
 
-        # Show loading indicator in the center of the page
-        loading = ft.Column([
-            ft.Row(
-                [
-                    ft.CupertinoActivityIndicator(radius=50, animating=True, color=ft.colors.RED)
-                ],
-                expand=True,
-                alignment=ft.MainAxisAlignment.CENTER
-            )],
-                expand=True,
-                alignment=ft.MainAxisAlignment.CENTER)
-        self.page.overlay.append(loading)
-        self.page.update()
-        
-        # set the computing flag to True
-        self.computing = True
         SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
-        
-        # Hide loading indicator
-        self.page.overlay.remove(loading)
-        self.page.update()
         
         # Output the results
         self.output(SAMPLES,ingredients)
-        
         
         # set the computing flag to False
         self.computing = False 
