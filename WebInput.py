@@ -258,6 +258,7 @@ class MainPage:
         
     # delete all output text and plots
     def new_recipe(self, e):
+        self.recipe_name.value = ""
         self.remove_all_output(e)
         if self.input_rows:
             for row in self.input_rows:
