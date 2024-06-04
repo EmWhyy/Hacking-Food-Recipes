@@ -133,10 +133,9 @@ def MCMC(D, A, a, B, b,page: ft.Page, num_iter=int(1e7), thinning=int(1e5)):
     
     
     # show progress bar in flet UI
-    progress_bar = []
-    pb = ft.ProgressBar(width=800)
-    progress_bar.append(pb)
-    page.add(progress_bar[0])
+    loading_bar = ft.ProgressBar(width=610)
+    page.add(loading_bar)
+    
     
     for i in tqdm(range(num_iter - 1)):
         xi = project_and_sample(xi, sample(), A, a)
@@ -145,13 +144,13 @@ def MCMC(D, A, a, B, b,page: ft.Page, num_iter=int(1e7), thinning=int(1e5)):
         
         if i % (num_iter // 100) == 0:
             
-            pb.value = i/num_iter
+            loading_bar.value = i/num_iter
             sleep(0.01)
             page.update()
             
     # timer for 0.3 second 
     sleep(0.3)
-    page.remove(progress_bar.pop())
+    page.remove(loading_bar)
     page.update()
           
 
