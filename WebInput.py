@@ -12,14 +12,10 @@ class MainPage:
         self.text_elements = []
         self.input_rows = []
         self.plots = []
+        self.computing = False
         
-    def remove_all_output(self,e):
-        self.delete_output_text()
-        self.remove_plots(e)
-        
-        #Fix this
-        #self.plots_change(e)
-        
+# Input region 
+
     # Function to add a row
     def add_row(self, e):
 
@@ -66,8 +62,9 @@ class MainPage:
             name_input, amount_input = row.controls
             inputs.append((name_input.value, amount_input.value))
         return inputs
+# Input region end
 
-
+# Plot region
  # Function to show the plots  
     def show_plots(self,e):
         self.page.auto_scroll = False
@@ -111,16 +108,10 @@ class MainPage:
         else:
             self.remove_plots(e)
 
-    
-    def new_recipe(self, e):
-        self.remove_all_output(e)
-        if self.input_rows:
-            for row in self.input_rows:
-                self.page.remove(row)
-                self.page.update()
-            self.input_rows = []
-        self.page.update()
-        
+# Plot region end
+
+# main page region
+   
     def build(self):
         # page settings
         self.page.scroll = ft.ScrollMode.ADAPTIVE
@@ -147,8 +138,8 @@ class MainPage:
         
         self.page.add(ft.Row([new_recipe_button,toggle_dark_mode_button,switch_plots_button]))
         self.page.add(self.recipe_name)
-        
 
+ 
     # Function to create a floating button
     def create_floating_button(self, icon, on_click, tooltip, bgcolor, top=None, bottom=20, right=None, left=None):
         return ft.FloatingActionButton(
@@ -181,7 +172,14 @@ class MainPage:
         self.page.update()
         self.page.auto_scroll = True
         
+
     def compute(self, e):
+        
+        # stops the user from clicking the compute button multiple times
+        if self.computing:
+            self.popup_snackbar("Please wait until the computation is finished", ft.colors.RED_200)
+            return
+        
         self.remove_all_output(e)
         inputs = self.get_inputs()
         
@@ -209,36 +207,30 @@ class MainPage:
         self.page.overlay.append(loading)
         self.page.update()
         
-        
+        # set the computing flag to True
+        self.computing = True
         SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
         
         # Hide loading indicator
         self.page.overlay.remove(loading)
         self.page.update()
         
-        
+        # Output the results
         self.output(SAMPLES,ingredients)
-
+        
+        
+        # set the computing flag to False
+        self.computing = False 
 
     def validate_input(self, ingredients, values_input, Nutrients):
         # Check if the input is valid
         if len(ingredients) < 4:
-            self.page.show_snack_bar(
-                ft.SnackBar(
-                    ft.Text("Provide more then 4 ingredients"), 
-                    open=True,
-                    bgcolor=ft.colors.RED_200)
-            )
+            self.popup_snackbar("Provide at least 4 ingredients", ft.colors.RED_200)
             return False
         
         # two values muss be without a given amount
         if values_input.count(None) < 2:
-            self.page.show_snack_bar(
-                ft.SnackBar(
-                    ft.Text("Provide at least 2 ingredients without a given amount"), 
-                    open=True,
-                    bgcolor=ft.colors.RED_200)
-            )
+            self.popup_snackbar("Provide at least 2 ingredients without a given amount", ft.colors.RED_200)
             return False
         
         if sum([float(value) if value != None else 0 for value in values_input]) >= 1:
@@ -277,6 +269,32 @@ class MainPage:
             for i in range(len(self.text_elements)):
                 self.page.remove(self.text_elements.pop())
                 self.page.update()
+                        
+    def remove_all_output(self,e):
+        self.delete_output_text()
+        self.remove_plots(e)
+        
+        #Fix this
+        #self.plots_change(e) 
+        
+    # delete all output text and plots
+    def new_recipe(self, e):
+        self.remove_all_output(e)
+        if self.input_rows:
+            for row in self.input_rows:
+                self.page.remove(row)
+                self.page.update()
+            self.input_rows = []
+        self.page.update()
+    
+    # Function to show a snackbar wich pops up from the bottom of the screen and shows a message
+    def popup_snackbar(self, text, color):
+        self.page.show_snack_bar(
+            ft.SnackBar(
+                ft.Text(text), 
+                open=True,
+                bgcolor= color)
+            )
     
         
 def main(page: ft.Page):
