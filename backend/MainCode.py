@@ -82,7 +82,8 @@ def construct_directions(B):
     # now define the sampling function, as per usual for multivariate Gaussians:
     def sample():
         u = R @ np.reshape(np.sqrt(S) * randn(K), [K, 1])
-        u /= np.linalg.norm(u)
+        if np.linalg.norm(u) != 0:
+            u /= np.linalg.norm(u)
         return u.flatten()
 
     return sample
