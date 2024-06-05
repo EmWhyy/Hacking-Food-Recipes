@@ -193,6 +193,9 @@ class MainPage:
         if not self.validate_input(ingredients, values_input, Nutrients):
             return
 
+        # set the computing flag to True
+        self.computing = True
+        
         SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
         
         # Output the results
