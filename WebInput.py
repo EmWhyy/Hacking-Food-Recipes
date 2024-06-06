@@ -12,16 +12,16 @@ class MainPage:
         self.text_elements = []
         self.input_rows = []
         self.plots = []
+        self.computing = False
         
-    
+# Input region 
+
     # Function to add a row
     def add_row(self, e):
-        if len(self.text_elements) > 0:
-            self.delete_output_text()
-        if len(self.plots) > 0:
-            self.remove_plots(e)
-            
-            
+
+        if len(self.plots) > 0 or len(self.text_elements) > 0:
+            self.remove_all_output(e)
+
         name_input = ft.TextField(
             label="Ingredient Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
@@ -62,8 +62,9 @@ class MainPage:
             name_input, amount_input = row.controls
             inputs.append((name_input.value, amount_input.value))
         return inputs
+# Input region end
 
-
+# Plot region
  # Function to show the plots  
     def show_plots(self,e):
         self.page.auto_scroll = False
@@ -99,19 +100,18 @@ class MainPage:
         if len(self.plots) > 0:
             for i in range(len(self.plots)):
                 self.page.remove(self.plots.pop())
-                self.page.update()
+            self.page.update()
+                
+    def plots_change(self, e):
+        if e.control.value:
+            self.show_plots(e)
+        else:
+            self.remove_plots(e)
 
-    
-    def new_recipe(self, e):
-        self.delete_output_text()
-        self.remove_plots(e)
-        if self.input_rows:
-            for row in self.input_rows:
-                self.page.remove(row)
-                self.page.update()
-            self.input_rows = []
-        self.page.update()
-        
+# Plot region end
+
+# main page region
+   
     def build(self):
         # page settings
         self.page.scroll = ft.ScrollMode.ADAPTIVE
@@ -119,16 +119,16 @@ class MainPage:
         self.page.theme_mode = "dark"
         
         # Buttons
-        toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode)
-        compute_button = ft.ElevatedButton("Compute", on_click=self.compute)
+        toggle_dark_mode_button = ft.ElevatedButton("Theme", on_click=self.toggle_dark_mode)
         new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe)
-        show_plots_button = ft.ElevatedButton("Show Plots", on_click=self.show_plots)
-        close_plots_button = ft.ElevatedButton("Close Plots", on_click=self.remove_plots)
-        add_button = self.create_floating_button(ft.icons.ADD, self.add_row, "Add new row", 120, ft.colors.BLUE_200)
-        delete_button = self.create_floating_button(ft.icons.REMOVE, self.delete_row, "Delete row", 10, ft.colors.RED_200)
+        switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plots_change)
         
-        self.page.overlay.extend([add_button, delete_button])
-        self.position_floating_button(add_button, delete_button)
+        
+        compute_button = self.create_floating_button(ft.icons.CALCULATE, self.compute, "Compute", ft.colors.GREEN_500, left=  10)
+        add_button = self.create_floating_button(ft.icons.ADD, self.add_row, "Add new row", ft.colors.BLUE_200, right =120)
+        delete_button = self.create_floating_button(ft.icons.REMOVE, self.delete_row, "Delete row",  ft.colors.RED_200,right =10)
+        
+        self.page.overlay.extend([compute_button,add_button, delete_button])
     
         # name of the recipe
         self.recipe_name = ft.TextField(
@@ -136,12 +136,12 @@ class MainPage:
             border_color= "black" if self.page.theme_mode == "light" else "white",
             height = 80)
         
-        self.page.add(ft.Row([compute_button,toggle_dark_mode_button,new_recipe_button, show_plots_button,close_plots_button]))
+        self.page.add(ft.Row([new_recipe_button,toggle_dark_mode_button,switch_plots_button]))
         self.page.add(self.recipe_name)
-        
 
+ 
     # Function to create a floating button
-    def create_floating_button(self, icon, on_click, tooltip, right, bgcolor):
+    def create_floating_button(self, icon, on_click, tooltip, bgcolor, top=None, bottom=20, right=None, left=None):
         return ft.FloatingActionButton(
             content=ft.Row([ft.Icon(icon)], alignment="center", spacing=5),
             on_click=on_click,
@@ -150,17 +150,12 @@ class MainPage:
             mini=True,
             tooltip=tooltip,
             bgcolor=bgcolor,
+            top=top,
+            bottom=bottom,
             right=right,
-            bottom=20
+            left = left
+            
         )
-        
-    # Hard coded positions for the floating buttons
-    def position_floating_button(self,add_button, delete_button):
-        add_button.top = None
-        add_button.left = None
-
-        delete_button.top = None
-        delete_button.left = None 
 
     def toggle_dark_mode(self, e):
         self.page.auto_scroll = False
@@ -177,7 +172,18 @@ class MainPage:
         self.page.update()
         self.page.auto_scroll = True
         
+
     def compute(self, e):
+        
+        # stops the user from clicking the compute button multiple times
+        if self.computing:
+            self.popup_snackbar("Please wait until the computation is finished", ft.colors.RED_200)
+            return
+        
+        # delete the output text and the plots
+        self.remove_all_output(e)
+        
+        # get the inputs from the user
         inputs = self.get_inputs()
         
         ingredients = [item[0] for item in inputs]
@@ -190,30 +196,26 @@ class MainPage:
         if not self.validate_input(ingredients, values_input, Nutrients):
             return
 
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
-        self.delete_output_text()
+        # set the computing flag to True
+        self.computing = True
+        
+        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
+        
+        # Output the results
         self.output(SAMPLES,ingredients)
-        self.remove_plots(e)
+        
+        # set the computing flag to False
+        self.computing = False 
 
     def validate_input(self, ingredients, values_input, Nutrients):
         # Check if the input is valid
         if len(ingredients) < 4:
-            self.page.show_snack_bar(
-                ft.SnackBar(
-                    ft.Text("Provide more then 4 ingredients"), 
-                    open=True,
-                    bgcolor=ft.colors.RED_200)
-            )
+            self.popup_snackbar("Provide at least 4 ingredients", ft.colors.RED_200)
             return False
         
         # two values muss be without a given amount
         if values_input.count(None) < 2:
-            self.page.show_snack_bar(
-                ft.SnackBar(
-                    ft.Text("Provide at least 2 ingredients without a given amount"), 
-                    open=True,
-                    bgcolor=ft.colors.RED_200)
-            )
+            self.popup_snackbar("Provide at least 2 ingredients without a given amount", ft.colors.RED_200)
             return False
         
         if sum([float(value) if value != None else 0 for value in values_input]) >= 1:
@@ -252,6 +254,33 @@ class MainPage:
             for i in range(len(self.text_elements)):
                 self.page.remove(self.text_elements.pop())
                 self.page.update()
+                        
+    def remove_all_output(self,e):
+        self.delete_output_text()
+        self.remove_plots(e)
+        
+        #Fix this
+        #self.plots_change(e) 
+        
+    # delete all output text and plots
+    def new_recipe(self, e):
+        self.recipe_name.value = ""
+        self.remove_all_output(e)
+        if self.input_rows:
+            for row in self.input_rows:
+                self.page.remove(row)
+                self.page.update()
+            self.input_rows = []
+        self.page.update()
+    
+    # Function to show a snackbar wich pops up from the bottom of the screen and shows a message
+    def popup_snackbar(self, text, color):
+        self.page.show_snack_bar(
+            ft.SnackBar(
+                ft.Text(text), 
+                open=True,
+                bgcolor= color)
+            )
     
         
 def main(page: ft.Page):
