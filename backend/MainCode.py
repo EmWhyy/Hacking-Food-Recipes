@@ -102,11 +102,9 @@ def project_and_sample(xi, s, A, a):
             upper = np.minimum(upper, -y[k] / z[k])
         elif z[k] < 0:
             lower = np.maximum(lower, -y[k] / z[k])
-
-    # sollte noch entfernt werden sollte nur temporär nötig sein #############################################################
-    upper = np.minimum(upper, 1)
-    lower = np.maximum(lower, 0)
-    ##########################################################################################################################
+        else:
+            upper = np.minimum(upper, 1)
+            lower = np.maximum(lower, 0)
 
     # sanity checks:
     assert np.isfinite(lower) and np.isfinite(
@@ -185,7 +183,7 @@ def plot_graph(SAMPLES, path):
     plt.rcParams['font.family'] = 'Arial'
     fig, ax = plt.subplots()
 
-    for i in range(SAMPLES.shape[1]):
+    for i in range(np.min(4, SAMPLES.shape[1])):
         ax.plot(acf(SAMPLES[:, i]))
 
     ax.axhline(0)
