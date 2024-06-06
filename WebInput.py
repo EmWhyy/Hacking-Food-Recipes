@@ -180,7 +180,10 @@ class MainPage:
             self.popup_snackbar("Please wait until the computation is finished", ft.colors.RED_200)
             return
         
+        # delete the output text and the plots
         self.remove_all_output(e)
+        
+        # get the inputs from the user
         inputs = self.get_inputs()
         
         ingredients = [item[0] for item in inputs]
@@ -196,7 +199,7 @@ class MainPage:
         # set the computing flag to True
         self.computing = True
         
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
+        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
         
         # Output the results
         self.output(SAMPLES,ingredients)
