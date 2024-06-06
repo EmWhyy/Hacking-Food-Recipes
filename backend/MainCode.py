@@ -182,8 +182,7 @@ def plot_sample(SAMPLES, Zutaten, D, path):
 def plot_graph(SAMPLES, path):
     plt.rcParams['font.family'] = 'Arial'
     fig, ax = plt.subplots()
-
-    for i in range(np.min(4, SAMPLES.shape[1])):
+    for i in range(min(4, len(SAMPLES[1]))):
         ax.plot(acf(SAMPLES[:, i]))
 
     ax.axhline(0)
