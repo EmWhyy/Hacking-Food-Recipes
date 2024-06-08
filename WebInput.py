@@ -4,6 +4,7 @@ from flet import TextField,ElevatedButton, Text
 import sys
 import os
 import backend.Input as Input
+import backend.recipe.createRecipe as createRecipe
 
 tutorial_shown = False
 
@@ -76,6 +77,7 @@ class MainPage:
         self.input_rows = []
         self.plots = []
         self.computing = False
+        self.model = createRecipe.Model()
         
 # Input region 
 
@@ -314,6 +316,11 @@ class MainPage:
         
         for element in self.text_elements:
             self.page.add(element)
+
+
+        prompt = createRecipe.createPrompt(recipe_name, ingredients, mean_sample)
+        print(prompt)
+        print(self.model.getRecipe(prompt))
         
     def delete_output_text(self):
         if self.text_elements:
