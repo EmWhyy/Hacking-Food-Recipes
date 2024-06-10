@@ -29,7 +29,6 @@ def execute_mcmc(Zutaten, A, a, B, b, Nutrients):
     # now we can start the MCMC loop
     S = int(1e5)
     SAMPLES = MCMC(D, A, a, B, b, num_iter=S, thinning=int(S / 100))
-    
     # plots 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     asset_dir = os.path.join(script_dir, "plots")
@@ -182,6 +181,8 @@ def plot_sample(SAMPLES, Zutaten, D, path):
 def plot_graph(SAMPLES, path):
     plt.rcParams['font.family'] = 'Arial'
     fig, ax = plt.subplots()
+    if SAMPLES[1].all() == SAMPLES[2].all() == SAMPLES[3].all() == SAMPLES[4].all():
+        return
     for i in range(min(4, len(SAMPLES[1]))):
         ax.plot(acf(SAMPLES[:, i]))
 
