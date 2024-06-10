@@ -78,6 +78,9 @@ class MainPage:
         self.plots = []
         self.computing = False
         self.model = createRecipe.Model()
+        self.recipe_name = None
+        self.ingredients = None
+        self.mean_sample = None
         
 # Input region 
 
@@ -296,32 +299,39 @@ class MainPage:
         
         
     def output(self, samples, ingredients):
-        mean_sample = np.mean(samples, axis=0)
+        self.mean_sample = np.mean(samples, axis=0)
         std_sample = np.std(samples, axis=0)
         textSize = 11
         textSize2 = 14
         
-        recipe_name = self.recipe_name.value
+        self.recipe_name = self.recipe_name.value
         length = len(ingredients)
-        
+        self.ingredients = ingredients
+
         self.text_elements = [
-            Text("Dish: " + recipe_name, size = textSize2),
+            Text("Dish: " + self.recipe_name, size = textSize2),
             Text(f"{length} ingredients in total", size = textSize2),
             Text("=" * 55, size = textSize)
             ]
         for i, zutat in enumerate(ingredients):
-            self.text_elements.append(Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%", size = textSize))
+            self.text_elements.append(Text("{:>42}".format(zutat) + f": {self.mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%", size = textSize))
         self.text_elements.append(Text("=" * 55, size = textSize))
         
         
         for element in self.text_elements:
             self.page.add(element)
 
+        self.createRecipe()
 
-        prompt = createRecipe.createPrompt(recipe_name, ingredients, mean_sample)
+
+    def createRecipe(self):
+        prompt = createRecipe.createPrompt(self.recipe_name, self.ingredients, self.mean_sample)
         print(prompt)
-        print(self.model.getRecipe(prompt))
-        
+        recipe = self.model.getRecipe(prompt)
+        print(recipe)
+        self.text_elements.append(Text(recipe, size = 11))
+        self.page.add(self.text_elements[-1])
+
     def delete_output_text(self):
         if self.text_elements:
             for i in range(len(self.text_elements)):

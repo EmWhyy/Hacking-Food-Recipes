@@ -19,5 +19,6 @@ def createPrompt(recipeName, ingredients, meanOfSamples):
     prompt = f"Title: {recipeName}; Ingredients:"
     meanOfSamples = np.round(meanOfSamples, 2)
     for i, ingredient in enumerate(ingredients):
-        prompt += f" {ingredient} {meanOfSamples[i]}," if i != len(ingredients) - 1 else f" {ingredient} {meanOfSamples[i]}."
+        prompt += f" {ingredient}," if i != len(ingredients) - 1 else f" {ingredient}."
+        # {meanOfSamples[i]}
     return prompt
