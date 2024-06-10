@@ -83,7 +83,8 @@ def construct_directions(B):
     # now define the sampling function, as per usual for multivariate Gaussians:
     def sample():
         u = R @ np.reshape(np.sqrt(S) * randn(K), [K, 1])
-        u /= np.linalg.norm(u)
+        if np.linalg.norm(u) != 0:
+            u /= np.linalg.norm(u)
         return u.flatten()
 
     return sample
@@ -102,6 +103,9 @@ def project_and_sample(xi, s, A, a):
             upper = np.minimum(upper, -y[k] / z[k])
         elif z[k] < 0:
             lower = np.maximum(lower, -y[k] / z[k])
+        else:
+            upper = np.minimum(upper, 1)
+            lower = np.maximum(lower, 0)
 
     # sanity checks:
     assert np.isfinite(lower) and np.isfinite(
@@ -195,8 +199,9 @@ def plot_sample(SAMPLES, Zutaten, D, path):
 def plot_graph(SAMPLES, path):
     plt.rcParams['font.family'] = 'Arial'
     fig, ax = plt.subplots()
-
-    for i in range(4):
+    if SAMPLES[1].all() == SAMPLES[2].all() == SAMPLES[3].all() == SAMPLES[4].all():
+        return
+    for i in range(min(4, len(SAMPLES[1]))):
         ax.plot(acf(SAMPLES[:, i]))
 
     ax.axhline(0)
