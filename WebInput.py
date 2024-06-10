@@ -25,7 +25,8 @@ class MainPage:
         name_input = ft.TextField(
             label="Ingredient Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
-            height = 80
+            height = 80,
+            col=7
             )
         
         amount_input = ft.TextField(
@@ -33,9 +34,11 @@ class MainPage:
             border_color= "black" if self.page.theme_mode == "light" else "white",
             on_change= self.textbox_changed,
             keyboard_type=ft.KeyboardType.NUMBER,
-            height = 80
+            height = 80,
+            col=5
             )
-        input_row = ft.Row([name_input, amount_input])
+        
+        input_row = ft.ResponsiveRow([name_input, amount_input])
         self.input_rows.append(input_row)
         self.page.add(input_row)
         
@@ -119,9 +122,10 @@ class MainPage:
         self.page.theme_mode = "dark"
         
         # Buttons
-        toggle_dark_mode_button = ft.ElevatedButton("Theme", on_click=self.toggle_dark_mode)
-        new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe)
-        switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plots_change)
+
+        toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode,col={"sm": 6, "md": 4,"lg": 2},)
+        new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe, col={"sm": 6, "md": 4, "lg": 2},)
+        switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plots_change, col={"sm": 6, "md": 4, "lg": 2})
         
         
         compute_button = self.create_floating_button(ft.icons.CALCULATE, self.compute, "Compute", ft.colors.GREEN_500, left=  10)
@@ -134,10 +138,13 @@ class MainPage:
         self.recipe_name = ft.TextField(
             label="Recipe Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
-            height = 80)
+            height = 80,
+            col=12)
         
-        self.page.add(ft.Row([new_recipe_button,toggle_dark_mode_button,switch_plots_button]))
-        self.page.add(self.recipe_name)
+
+        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button]))
+        self.page.add(ft.ResponsiveRow([self.recipe_name]))
+
 
  
     # Function to create a floating button
@@ -232,18 +239,20 @@ class MainPage:
     def output(self, samples, ingredients):
         mean_sample = np.mean(samples, axis=0)
         std_sample = np.std(samples, axis=0)
+        textSize = 11
+        textSize2 = 14
         
         recipe_name = self.recipe_name.value
         length = len(ingredients)
         
         self.text_elements = [
-            Text("Dish: " + recipe_name),
-            Text(f"{length} ingredients in total"),
-            Text("=" * 66)
+            Text("Dish: " + recipe_name, size = textSize2),
+            Text(f"{length} ingredients in total", size = textSize2),
+            Text("=" * 55, size = textSize)
             ]
         for i, zutat in enumerate(ingredients):
-            self.text_elements.append(Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%"))
-        self.text_elements.append(Text("=" * 66))
+            self.text_elements.append(Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%", size = textSize))
+        self.text_elements.append(Text("=" * 55, size = textSize))
         
         
         for element in self.text_elements:
