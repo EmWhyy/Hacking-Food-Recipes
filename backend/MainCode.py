@@ -11,13 +11,14 @@ import flet as ft
 import os
 #import data.DataManager as DataManager
 import logging
+from time import sleep
 
 logging.getLogger('matplotlib.font_manager').disabled = True
 matplotlib.use('Agg')
 
 
 
-def execute_mcmc(Zutaten, A, a, B, b, Nutrients):
+def execute_mcmc(Zutaten, A, a, B, b, Nutrients, page: ft.Page):
     D = len(Zutaten)
 
     x0 = find_initial_point(A, a, B, b)
@@ -28,7 +29,7 @@ def execute_mcmc(Zutaten, A, a, B, b, Nutrients):
 
     # now we can start the MCMC loop
     S = int(1e5)
-    SAMPLES = MCMC(D, A, a, B, b, num_iter=S, thinning=int(S / 100))
+    SAMPLES = MCMC(D, A, a, B, b,page, num_iter=S, thinning=int(S / 100))
     
     # plots 
     script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -114,9 +115,11 @@ def project_and_sample(xi, s, A, a):
 
     return xi + a * s
 
-def MCMC(D, A, a, B, b, num_iter=int(1e7), thinning=int(1e5)):
+def MCMC(D, A, a, B, b,page: ft.Page, num_iter=int(1e7), thinning=int(1e5)):
 
     print("finding initial point.")
+    
+    # suppress deprecation warning
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         out = linprog(np.ones(D), A_ub=A, b_ub=a, A_eq=B, b_eq=b, method="interior-point")
@@ -129,9 +132,23 @@ def MCMC(D, A, a, B, b, num_iter=int(1e7), thinning=int(1e5)):
     samples = np.zeros(shape=(num_iter, D))
     samples[0, :] = x0
     xi = x0
+    
+    # show progress bar in flet UI
+    loading_bar = ft.ProgressBar(width=610)
+    page.add(loading_bar)
+    
     for i in tqdm(range(num_iter - 1)):
         xi = project_and_sample(xi, sample(), A, a)
         samples[i + 1, :] = xi
+        
+        # update progress bar
+        if i % (num_iter // 100) == 0:
+            loading_bar.value = i/num_iter
+            sleep(0.01)
+            page.update()
+    sleep(0.3)
+    page.remove(loading_bar)
+    
 
     return samples[0::thinning, :]
 
