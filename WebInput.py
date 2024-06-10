@@ -78,7 +78,7 @@ class MainPage:
         self.plots = []
         self.computing = False
         self.model = createRecipe.Model()
-        self.recipe_name = None
+        self.name = None
         self.ingredients = None
         self.mean_sample = None
         
@@ -304,12 +304,12 @@ class MainPage:
         textSize = 11
         textSize2 = 14
         
-        self.recipe_name = self.recipe_name.value
+        self.name = self.recipe_name.value
         length = len(ingredients)
         self.ingredients = ingredients
 
         self.text_elements = [
-            Text("Dish: " + self.recipe_name, size = textSize2),
+            Text("Dish: " + self.name, size = textSize2),
             Text(f"{length} ingredients in total", size = textSize2),
             Text("=" * 55, size = textSize)
             ]
@@ -325,7 +325,7 @@ class MainPage:
 
 
     def createRecipe(self):
-        prompt = createRecipe.createPrompt(self.recipe_name, self.ingredients, self.mean_sample)
+        prompt = createRecipe.createPrompt(self.name, self.ingredients, self.mean_sample)
         print(prompt)
         recipe = self.model.getRecipe(prompt)
         print(recipe)
