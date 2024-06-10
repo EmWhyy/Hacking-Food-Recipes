@@ -8,7 +8,7 @@ from tueplots.constants.color import rgb
 
 # Function to create the needed Equality and Inequality matrices
 # this function might need to be changed in the future when we decide to also consider the Nutritional values of the products
-def createMatrices(Ingredients, givenAmounts, Nutrients):
+def createMatrices(Ingredients, givenAmounts, Nutrients, page: ft.Page):
     plt.rcParams.update(bundles.beamer_moml())
     plt.rcParams.update({"figure.dpi": 200})
 
@@ -56,7 +56,7 @@ def createMatrices(Ingredients, givenAmounts, Nutrients):
             b[n - 1] = givenAmounts[i]
             n -= 1
 
-    result = MainCode.execute_mcmc(Ingredients, A, a, B, b, Nutrients)
+    result = MainCode.execute_mcmc(Ingredients, A, a, B, b, Nutrients, page)
 
     return result
     # plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
