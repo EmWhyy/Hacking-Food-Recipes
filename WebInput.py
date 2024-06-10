@@ -187,11 +187,16 @@ class MainPage:
         if Nutrients == None:
             Nutrients = [0,0,0,0,0,0]
 
+        if not self.validate_input(values_input):
+            return
+
         SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients)
         self.delete_output_text()
         self.output(SAMPLES,ingredients)
         self.remove_plots(e)
         
+        
+    def validate_input(self, values_input):
         if sum([float(value) if value != None else 0 for value in values_input]) >= 1:
             self.page.show_snack_bar(
                 ft.SnackBar(
