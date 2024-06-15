@@ -128,11 +128,16 @@ class MainPage:
         switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plots_change, col={"sm": 6, "md": 4, "lg": 2})
         
         
-        compute_button = self.create_floating_button(ft.icons.CALCULATE, self.compute, "Compute", ft.colors.GREEN_500, left=  10)
-        add_button = self.create_floating_button(ft.icons.ADD, self.add_row, "Add new row", ft.colors.BLUE_200, right =120)
-        delete_button = self.create_floating_button(ft.icons.REMOVE, self.delete_row, "Delete row",  ft.colors.RED_200,right =10)
+        compute_button = self.create_icon_button(ft.icons.CALCULATE, 48, self.compute, "Compute")
+        add_button = self.create_icon_button(ft.icons.ADD, 40, self.add_row, "Add new ingredient")
+        delete_button = self.create_icon_button(ft.icons.REMOVE, 40, self.delete_row, "Delete ingredient")
+
+        self.page.bottom_appbar = ft.BottomAppBar(
+            height = 64,
+            content= ft.Row([add_button, delete_button,ft.Container(expand=True), compute_button]),
+            padding = ft.padding.symmetric(horizontal=16)
+        )
         
-        self.page.overlay.extend([compute_button,add_button, delete_button])
     
         # name of the recipe
         self.recipe_name = ft.TextField(
@@ -148,20 +153,12 @@ class MainPage:
 
  
     # Function to create a floating button
-    def create_floating_button(self, icon, on_click, tooltip, bgcolor, top=None, bottom=20, right=None, left=None):
-        return ft.FloatingActionButton(
-            content=ft.Row([ft.Icon(icon)], alignment="center", spacing=5),
+    def create_icon_button(self, icon, icon_size, on_click, tooltip):
+        return ft.IconButton(
+            icon = icon,
+            icon_size = icon_size,
             on_click=on_click,
-            shape=ft.RoundedRectangleBorder(radius=5),
-            width=100,
-            mini=True,
-            tooltip=tooltip,
-            bgcolor=bgcolor,
-            top=top,
-            bottom=bottom,
-            right=right,
-            left = left
-            
+            tooltip=tooltip
         )
 
     def toggle_dark_mode(self, e):
