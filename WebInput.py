@@ -26,7 +26,7 @@ class MainPage:
             label="Ingredient Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
             height = 80,
-            col=7
+            col={"xs": 7.416,"md":3.708 }
             )
         
         amount_input = ft.TextField(
@@ -35,7 +35,7 @@ class MainPage:
             on_change= self.textbox_changed,
             keyboard_type=ft.KeyboardType.NUMBER,
             height = 80,
-            col=5
+            col={"xs": 4.584, "md": 2.292}
             )
         
         input_row = ft.ResponsiveRow([name_input, amount_input])
@@ -121,11 +121,16 @@ class MainPage:
         self.page.auto_scroll = True
         self.page.theme_mode = "dark"
         
-        # Buttons
+        # Buttons and Recipe-Field
+        # screen is divided into 12 colums for all sizes
+        # "md": 3 means this button takes up 3 of these 12 colums on medium screens and larger
+        colums_ElevatedButton = {"xs": 12,"md": 2.472} 
+        colums_Switch = {"xs": 6, "md": 2.472}
+        colums_Recipe = {"xs": 12, "md": 6}
 
-        toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode,col={"sm": 6, "md": 4,"lg": 2},)
-        new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe, col={"sm": 6, "md": 4, "lg": 2},)
-        switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plots_change, col={"sm": 6, "md": 4, "lg": 2})
+        toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode,col=colums_ElevatedButton)
+        new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe, col=colums_ElevatedButton,)
+        switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plots_change, col=colums_Switch )
         
         
         compute_button = self.create_icon_button(ft.icons.CALCULATE, 48, self.compute, "Compute")
@@ -135,7 +140,7 @@ class MainPage:
         self.page.bottom_appbar = ft.BottomAppBar(
             height = 64,
             content= ft.Row([add_button, delete_button,ft.Container(expand=True), compute_button]),
-            padding = ft.padding.symmetric(horizontal=16)
+            padding = ft.padding.symmetric(horizontal=8)
         )
         
     
@@ -144,7 +149,7 @@ class MainPage:
             label="Recipe Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
             height = 80,
-            col=12)
+            col = colums_Recipe)
         
 
         self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button]))
@@ -152,7 +157,7 @@ class MainPage:
 
 
  
-    # Function to create a floating button
+    # Function to create a iconbutton
     def create_icon_button(self, icon, icon_size, on_click, tooltip):
         return ft.IconButton(
             icon = icon,
