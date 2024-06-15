@@ -56,9 +56,9 @@ def createMatrices(Ingredients, givenAmounts, Nutrients, page: ft.Page):
             b[n - 1] = givenAmounts[i]
             n -= 1
 
-    result = MainCode.execute_mcmc(Ingredients, A, a, B, b, Nutrients, page)
+    result,samples_plot = MainCode.execute_mcmc(Ingredients, A, a, B, b, Nutrients, page)
 
-    return result
+    return result, samples_plot
     # plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
     # # Set font because it uses a font which is not on every computer
     # plt.rcParams['font.family'] = 'Arial'

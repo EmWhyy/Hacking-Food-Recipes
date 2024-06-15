@@ -1,17 +1,22 @@
 import flet as ft
 import numpy as np
-from flet import TextField,ElevatedButton, Text
+from flet import TextField,ElevatedButton, Text, Image
 import sys
 import os
 import backend.Input as Input
 
+
+import base64
+from io import BytesIO
+from PIL import Image as pil_image
 class MainPage:
     def __init__(self, page):
         self.page = page
         self.path = os.path.dirname(os.path.realpath(__file__))
         self.text_elements = []
         self.input_rows = []
-        self.plots = []
+        self.plot = None
+        self.sample_plot = None
         self.computing = False
         
 # Input region 
@@ -19,7 +24,7 @@ class MainPage:
     # Function to add a row
     def add_row(self, e):
 
-        if len(self.plots) > 0 or len(self.text_elements) > 0:
+        if (self.plot is not None) or len(self.text_elements) > 0:
             self.remove_all_output(e)
 
         name_input = ft.TextField(
@@ -68,48 +73,35 @@ class MainPage:
 # Input region end
 
 # Plot region
- # Function to show the plots  
-    def show_plots(self,e):
+ # Function to show the plot
+    def show_plot(self,e):
         self.page.auto_scroll = False
-        plots_path = os.path.join(self.path, 'backend', 'plots')
         # test if the file exists
-        image_files = ["graph.png", "Samples.png", "matrices.png"]
-        if len(self.plots) > 0:
-            return
 
-        for file in image_files:
-            if os.path.exists(plots_path + "/" + file):
-                img = ft.Image(
-                    src=file,
-                    width=900,
-                    height=350,
-                    fit=ft.ImageFit.CONTAIN,
-                    border_radius=1,
-                )
-                self.plots.append(img)
-                self.page.add(img)
-                self.page.update()
-                
-            else:
-                self.page.show_snack_bar(
-                    ft.SnackBar(
-                        ft.Text("Plots not found!"), 
-                        open=True,
-                        bgcolor=ft.colors.RED_200)
-                    )
+        if self.plot is not None:
+            image_string = base64.b64encode(self.plot.getvalue()).decode("utf-8")
+            self.plot.seek(0)
+            self.sample_plot = Image(src_base64=image_string)
+            self.page.add(
+                ft.Row(controls=[self.sample_plot], alignment='center'))
+        else:
+            self.popup_snackbar("No plot available", ft.colors.RED_200)
+
         self.page.auto_scroll = True
     
-    def remove_plots(self,e):
-        if len(self.plots) > 0:
-            for i in range(len(self.plots)):
-                self.page.remove(self.plots.pop())
-            self.page.update()
+    def remove_plot(self,e):
+        if (self.plot != None):
+            #TODO: Fix this
+            # self.page.remove(self.sample_plot)
+            # self.sample_plot = None
+            # self.page.update()
+            pass
                 
-    def plots_change(self, e):
+    def plot_change(self, e):
         if e.control.value:
-            self.show_plots(e)
+            self.show_plot(e)
         else:
-            self.remove_plots(e)
+            self.remove_plot(e)
 
 # Plot region end
 
@@ -125,7 +117,7 @@ class MainPage:
 
         toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode,col={"sm": 6, "md": 4,"lg": 2},)
         new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe, col={"sm": 6, "md": 4, "lg": 2},)
-        switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plots_change, col={"sm": 6, "md": 4, "lg": 2})
+        switch_plot_button = ft.Switch(label = "Show Plot", on_change = self.plot_change, col={"sm": 6, "md": 4, "lg": 2})
         
         
         compute_button = self.create_floating_button(ft.icons.CALCULATE, self.compute, "Compute", ft.colors.GREEN_500, left=  10)
@@ -142,7 +134,7 @@ class MainPage:
             col=12)
         
 
-        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button]))
+        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plot_button]))
         self.page.add(ft.ResponsiveRow([self.recipe_name]))
 
 
@@ -187,9 +179,9 @@ class MainPage:
             self.popup_snackbar("Please wait until the computation is finished", ft.colors.RED_200)
             return
         
-        # delete the output text and the plots
+        # delete the output text and the plot
         self.remove_all_output(e)
-        
+
         # get the inputs from the user
         inputs = self.get_inputs()
         
@@ -206,11 +198,12 @@ class MainPage:
         # set the computing flag to True
         self.computing = True
         
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
+        SAMPLES, samples_plot = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
+        self.plot = samples_plot
         
         # Output the results
         self.output(SAMPLES,ingredients)
-        self.remove_plots(e)
+        self.remove_plot(e)
         
         
         # set the computing flag to False
@@ -259,12 +252,12 @@ class MainPage:
                         
     def remove_all_output(self,e):
         self.delete_output_text()
-        self.remove_plots(e)
+        self.remove_plot(e)
         
-        #Fix this
-        #self.plots_change(e) 
+        #TODO: Fix this
+        #self.plot_change(e) 
         
-    # delete all output text and plots
+    # delete all output text and plot
     def new_recipe(self, e):
         self.recipe_name.value = ""
         self.remove_all_output(e)
