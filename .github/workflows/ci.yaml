@@ -28,12 +28,38 @@ jobs:
         with:
           python-version: ${{matrix.python-version}} 
 
+      #install all dependencies
       - name: install numpy
         run: python -m pip install numpy
 
+      - name: install matplotlib
+        run: python -m pip install matplotlib
+
+      - name: install tqdm
+        run: python -m pip install tqdm
+
+      - name: install tueplots
+        run: python -m pip install tueplots
+
+      - name: install scipy
+        run: python -m pip install scipy
+
+      - name: install flet
+        run: python -m pip install flet
+
+      - name: install logging
+        run: python -m pip install logging
+
+      - name: install time
+        run: python -m pip install time
+
+
+
+      # install pytest
       - name: install pytest
         run: python -m pip install pytest 
 
+      #run the tests
       - name: run tests
         run: pytest 
 
