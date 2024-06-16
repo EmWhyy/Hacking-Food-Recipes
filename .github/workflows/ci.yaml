@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4 #check version from time to time
       
       - name: set up Python 
-        uses: actions/setup-python@v4 #check version from time to time
+        uses: actions/setup-python@v5 #check version from time to time
         with:
           python-version: ${{matrix.python-version}} 
 
