@@ -5,6 +5,55 @@ import sys
 import os
 import backend.Input as Input
 
+tutorial_shown = False
+
+def tutorial_window():
+    def close_tutorial(e):
+        tutorial_window.close()
+        #page.dialog.open = False
+        #page.update()
+
+    # Images and explanations for the tutorial
+    slides = [
+        {"image": "image1.png", "text": "This is part 1"},
+        {"image": "image2.png", "text": "This is part 2"},
+        {"image": "image3.png", "text": "This is part 3"},
+        ]
+    
+    # Swipaable tutorial window
+    tabs = ft.Tabs(
+        tabs=[
+            ft.Tab(
+                text=f"Slide {i+1}",
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Image(src=slide["image"]),
+                        ft.Text(slide["text"]),
+                    ]),
+                    alignment=ft.alignment.center,
+                    expand=True
+                )
+            ) for i, slide in enumerate(slides)
+        ]
+    )
+    
+    # Close button
+    close_button = ft.IconButton(icon=ft.icons.CLOSE, on_click=close_tutorial, tooltip="Close Tutorial")
+    
+    # Create and configure the tutorial window
+    page.dialog = ft.AlertDialog(
+        modal=True,
+        content=ft.Container(
+            content=ft.Column([
+                close_button,
+                tabs
+            ]),
+            alignment=ft.alignment.center,
+            width=600,
+            height=400
+        )
+    )
+
 class MainPage:
     def __init__(self, page):
         self.page = page
@@ -142,7 +191,7 @@ class MainPage:
             col=12)
         
 
-        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button]))
+        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button,tutorial_button]))
         self.page.add(ft.ResponsiveRow([self.recipe_name]))
 
 
@@ -288,7 +337,20 @@ class MainPage:
 def main(page: ft.Page):
     main_page = MainPage(page)
     main_page.build()
- 
+    
+    # Show the tutorial window on first launch
+    def show_tutorial():
+        global tutorial_shown
+        if not tutorial_shown:
+            tutorial_shown = True
+            tutorial_window()
+            
+    # display the tutorial
+    ###show_tutorial()
+    
+    #tutorial_button = page.create_floating_button(ft.icons.HELP, tutorial_window, "Show Tutorial", right = 60, bottom = 60)
+    #page.page.overlay.extend([tutorial_button])
+    
 # Swap between the two lines below to run the app in the browser or in the terminal   
 ft.app(main, assets_dir="./backend/plots")   
 # ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/plots")
