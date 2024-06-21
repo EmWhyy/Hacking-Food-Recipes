@@ -36,10 +36,10 @@ def execute_mcmc(Zutaten, A, a, B, b, Nutrients, page: ft.Page):
     script_dir = os.path.dirname(os.path.realpath(__file__))
     asset_dir = os.path.join(script_dir, "plots")
     
-    samples_plot = plot_sample(SAMPLES, Zutaten, D, asset_dir)
+    # plot_sample(SAMPLES, Zutaten, D, asset_dir)
     # DataManager.save_data(Zutaten, Nutrients, recipe_name)
     
-    return SAMPLES, samples_plot
+    return SAMPLES
     
     
 
@@ -189,12 +189,6 @@ def plot_sample(SAMPLES, Zutaten, D, path):
     cb.set_label(r"$\log_{10} x_i$")
     # plt.savefig(os.path.join(path, "Samples.png"))
     # plt.close('all')  # Close the plot
-    
-    buf = BytesIO()
-    plt.savefig(buf, format='png')
-    plt.close(fig)  # Close the figure to free up memory
-    buf.seek(0)
-    return buf
 
 # Zutaten = [
 #     "gek. Hülsenfrüchte (rote & braune Berglinsen)",

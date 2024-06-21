@@ -1,14 +1,15 @@
 import flet as ft
 import numpy as np
-from flet import TextField,ElevatedButton, Text, Image
-import sys
+from flet import Text
+from flet.matplotlib_chart import MatplotlibChart
+
 import os
 import backend.Input as Input
 
+import matplotlib
+import matplotlib.pyplot as plt
 
-import base64
-from io import BytesIO
-from PIL import Image as pil_image
+matplotlib.use("svg")
 class MainPage:
     def __init__(self, page):
         self.page = page
@@ -16,7 +17,6 @@ class MainPage:
         self.text_elements = []
         self.input_rows = []
         self.plot = None
-        self.sample_plot = None
         self.computing = False
         
 # Input region 
@@ -74,28 +74,42 @@ class MainPage:
 
 # Plot region
  # Function to show the plot
+ 
+    def compute_plot(self, SAMPLES, ingredients):
+        
+        mean_sample = np.mean(SAMPLES, axis=0)
+        std_sample = np.std(SAMPLES, axis=0)
+        
+        fig, ax = plt.subplots()
+        ax.bar(ingredients, mean_sample * 100, align='center', color='black', alpha=0.5, ecolor='black', capsize=10)
+        ax.errorbar(ingredients, mean_sample * 100, yerr=std_sample * 100, fmt='none', ecolor='red', capsize=5)
+
+        ax.set_ylabel('Porportion of Ingredients')
+        ax.set_title('Mean and Standard Deviation of Ingredients in the Recipe')
+        ax.set_ylim(0,100) 
+        
+        # legend 
+        ax.legend(["Mean", "Standard Deviation"], loc='upper right')
+        
+        chart_container = ft.Container(
+            content=MatplotlibChart(fig, expand=True),
+            width=600,  
+            height=400
+            )
+        
+        self.plot = chart_container
+        
+        
     def show_plot(self,e):
-        self.page.auto_scroll = False
-        # test if the file exists
-
-        if self.plot is not None:
-            image_string = base64.b64encode(self.plot.getvalue()).decode("utf-8")
-            self.plot.seek(0)
-            self.sample_plot = Image(src_base64=image_string)
-            self.page.add(
-                ft.Row(controls=[self.sample_plot], alignment='center'))
+        if (self.plot != None):
+            self.page.add(self.plot)
         else:
-            self.popup_snackbar("No plot available", ft.colors.RED_200)
-
-        self.page.auto_scroll = True
-    
+            self.popup_snackbar("No Plot to show", ft.colors.RED_200)
+        
     def remove_plot(self,e):
         if (self.plot != None):
-            #TODO: Fix this
-            # self.page.remove(self.sample_plot)
-            # self.sample_plot = None
-            # self.page.update()
-            pass
+            self.page.remove(self.plot)
+            self.page.update()
                 
     def plot_change(self, e):
         if e.control.value:
@@ -198,13 +212,12 @@ class MainPage:
         # set the computing flag to True
         self.computing = True
         
-        SAMPLES, samples_plot = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
-        self.plot = samples_plot
+        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
+        self.compute_plot(SAMPLES, ingredients)
         
         # Output the results
         self.output(SAMPLES,ingredients)
         self.remove_plot(e)
-        
         
         # set the computing flag to False
         self.computing = False 
@@ -253,9 +266,7 @@ class MainPage:
     def remove_all_output(self,e):
         self.delete_output_text()
         self.remove_plot(e)
-        
-        #TODO: Fix this
-        #self.plot_change(e) 
+
         
     # delete all output text and plot
     def new_recipe(self, e):
