@@ -19,7 +19,7 @@ def tutorial_window(page):
         {"image": "image3.png", "text": "This is part 3"},
         ]
     
-    # Swipaable tutorial window
+    # Swipeable tutorial window
     tabs = ft.Tabs(
         tabs=[
             ft.Tab(
@@ -327,7 +327,7 @@ class MainPage:
             self.input_rows = []
         self.page.update()
     
-    # Function to show a snackbar wich pops up from the bottom of the screen and shows a message
+    # Function to show a snackbar which pops up from the bottom of the screen and shows a message
     def popup_snackbar(self, text, color):
         self.page.show_snack_bar(
             ft.SnackBar(
