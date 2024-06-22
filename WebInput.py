@@ -36,16 +36,44 @@ def tutorial_window(page):
         ]
     )
     
+    # current_slide = ft.Ref(0)  # Add a reference to keep track of the current slide index
+    
+    # def update_slide():
+    #     slide = slides[current_slide.current]
+    #     image.src = slide["image"]
+    #     text.value = slide["text"]
+    #     page.update()
+    
+    # def next_slide(e):
+    #     if current_slide.current < len(slides) - 1:
+    #         current_slide.current += 1
+    #         update_slide()
+    
+    # def previous_slide(e):
+    #     if current_slide.current > 0:
+    #         current_slide.current -= 1
+    #         update_slide()
+    
+    # # Navigation buttons
+    # prev_button = ft.IconButton(icon=ft.icons.CHEVRON_LEFT, on_click=previous_slide, tooltip="Previous Slide")
+    # next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=next_slide, tooltip="Next Slide")
+    
+    # # Initial slide content
+    # slide = slides[current_slide.current]
+    # image = ft.Image(src=slide["image"])
+    # text = ft.Text(slide["text"])
+    
     # Close button
-    close_button = ft.IconButton(icon=ft.icons.CLOSE, on_click=close_tutorial, tooltip="Close Tutorial")
+    close_button = ft.IconButton(icon=ft.icons.CLOSE, on_click=close_tutorial)
     
     # Create and configure the tutorial window
     page.dialog = ft.AlertDialog(
         modal=True,
         content=ft.Container(
             content=ft.Column([
-                close_button,
+                ft.Row([ft.Container(), close_button], alignment=ft.MainAxisAlignment.END),
                 tabs
+                #ft.Row([prev_button, ft.Container(content=ft.Column([image, text]), alignment=ft.alignment.center), next_button], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
             ]),
             alignment=ft.alignment.center,
             width=600,
