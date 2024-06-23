@@ -62,6 +62,8 @@ class MainPage:
     # Function to delete a row
     def delete_row(self, e):
         if len(self.input_rows) > 0:
+            if (self.plot is not None) or len(self.text_elements) > 0:
+                self.remove_all_output(e)
             self.page.remove(self.input_rows.pop())
 
     def get_inputs(self):
@@ -98,6 +100,7 @@ class MainPage:
             )
         
         self.plot = chart_container
+        self.page.add(self.plot)
         
         
     def show_plot(self,e):
@@ -107,15 +110,17 @@ class MainPage:
             self.popup_snackbar("No Plot to show", ft.colors.RED_200)
         
     def remove_plot(self,e):
-        if (self.plot != None):
-            self.page.remove(self.plot)
-            self.page.update()
+        # if (self.plot != None):
+        #     self.page.remove(self.plot)
+        #     self.page.update()
+        pass
                 
     def plot_change(self, e):
-        if e.control.value:
-            self.show_plot(e)
-        else:
-            self.remove_plot(e)
+        # if e.control.value:
+        #     self.show_plot(e)
+        # else:
+        #     self.remove_plot(e)
+        pass
 
 # Plot region end
 
