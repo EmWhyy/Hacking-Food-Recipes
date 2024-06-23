@@ -7,81 +7,59 @@ import backend.Input as Input
 
 tutorial_shown = False
 
-def tutorial_window(page):
-    def close_tutorial(e):
-        page.dialog.open = False
-        page.update()
+class TutorialWindow:
+    def __init__(self, page):
+        self.page = page
+        self.slides = [
+            {"image": "image1.png", "text": "This is part 1"},
+            {"image": "image2.png", "text": "This is part 2"},
+            {"image": "image3.png", "text": "This is part 3"},
+        ]
+        self.current_slide = 0
+        self.image = ft.Image(src=self.slides[self.current_slide]["image"])
+        self.text = ft.Text(self.slides[self.current_slide]["text"])
+        self.dialog = None
 
-    # Images and explanations for the tutorial
-    slides = [
-        {"image": "image1.png", "text": "This is part 1"},
-        {"image": "image2.png", "text": "This is part 2"},
-        {"image": "image3.png", "text": "This is part 3"},
-        ]
-    
-    # Swipeable tutorial window
-    tabs = ft.Tabs(
-        tabs=[
-            ft.Tab(
-                text=f"{i+1}",
-                content=ft.Container(
-                    content=ft.Column([
-                        ft.Image(src=slide["image"]),
-                        ft.Text(slide["text"]),
-                    ]),
-                    alignment=ft.alignment.center,
-                    expand=True
-                )
-            ) for i, slide in enumerate(slides)
-        ]
-    )
-    
-    # current_slide = ft.Ref(0)  # Add a reference to keep track of the current slide index
-    
-    # def update_slide():
-    #     slide = slides[current_slide.current]
-    #     image.src = slide["image"]
-    #     text.value = slide["text"]
-    #     page.update()
-    
-    # def next_slide(e):
-    #     if current_slide.current < len(slides) - 1:
-    #         current_slide.current += 1
-    #         update_slide()
-    
-    # def previous_slide(e):
-    #     if current_slide.current > 0:
-    #         current_slide.current -= 1
-    #         update_slide()
-    
-    # # Navigation buttons
-    # prev_button = ft.IconButton(icon=ft.icons.CHEVRON_LEFT, on_click=previous_slide, tooltip="Previous Slide")
-    # next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=next_slide, tooltip="Next Slide")
-    
-    # # Initial slide content
-    # slide = slides[current_slide.current]
-    # image = ft.Image(src=slide["image"])
-    # text = ft.Text(slide["text"])
-    
-    # Close button
-    close_button = ft.IconButton(icon=ft.icons.CLOSE, on_click=close_tutorial)
-    
-    # Create and configure the tutorial window
-    page.dialog = ft.AlertDialog(
-        modal=True,
-        content=ft.Container(
-            content=ft.Column([
-                ft.Row([ft.Container(), close_button], alignment=ft.MainAxisAlignment.END),
-                tabs
-                #ft.Row([prev_button, ft.Container(content=ft.Column([image, text]), alignment=ft.alignment.center), next_button], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
-            ]),
-            alignment=ft.alignment.center,
-            width=600,
-            height=400
+    def close_tutorial(self, e):
+        self.page.dialog.open = False
+        self.page.update()
+
+    def update_slide(self):
+        slide = self.slides[self.current_slide]
+        self.image.src = slide["image"]
+        self.text.value = slide["text"]
+        self.page.update()
+
+    def next_slide(self, e):
+        if self.current_slide < len(self.slides) - 1:
+            self.current_slide += 1
+            self.update_slide()
+
+    def previous_slide(self, e):
+        if self.current_slide > 0:
+            self.current_slide -= 1
+            self.update_slide()
+
+    def show(self):
+        close_button = ft.IconButton(icon=ft.icons.CLOSE, on_click=self.close_tutorial)
+        prev_button = ft.IconButton(icon=ft.icons.CHEVRON_LEFT, on_click=self.previous_slide, tooltip="Previous Slide")
+        next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=self.next_slide, tooltip="Next Slide")
+
+        self.dialog = ft.AlertDialog(
+            modal=True,
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([ft.Container(), close_button], alignment=ft.MainAxisAlignment.END),
+                    ft.Row([prev_button, ft.Container(content=ft.Column([self.image, self.text]), alignment=ft.alignment.center), next_button], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
+                ]),
+                alignment=ft.alignment.center,
+                width=600,
+                height=400
+            )
         )
-    )
-    page.dialog.open = True
-    page.update()
+        self.page.dialog = self.dialog
+        self.page.dialog.open = True
+        self.page.update()
 
 class MainPage:
     def __init__(self, page):
@@ -204,15 +182,13 @@ class MainPage:
         toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode,col={"sm": 6, "md": 4,"lg": 2},)
         new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe, col={"sm": 6, "md": 4, "lg": 2},)
         switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plots_change, col={"sm": 6, "md": 4, "lg": 2})
-        
+        tutorial_button = ft.ElevatedButton(content=ft.Icon(ft.icons.INFO), on_click=lambda e: TutorialWindow(self.page).show(), col={"sm": 6, "md": 4, "lg": 2})
         
         compute_button = self.create_floating_button(ft.icons.CALCULATE, self.compute, "Compute", ft.colors.GREEN_500, left=  10)
         add_button = self.create_floating_button(ft.icons.ADD, self.add_row, "Add new row", ft.colors.BLUE_200, right =120)
         delete_button = self.create_floating_button(ft.icons.REMOVE, self.delete_row, "Delete row",  ft.colors.RED_200,right =10)
-        
-        tutorial_button = self.create_floating_button(ft.icons.HELP, lambda e: tutorial_window(self.page), "Show Tutorial",ft.colors.WHITE ,right = 20, bottom = 633)
-        
-        self.page.overlay.extend([compute_button,add_button, delete_button, tutorial_button])
+            
+        self.page.overlay.extend([compute_button,add_button, delete_button])
     
         # name of the recipe
         self.recipe_name = ft.TextField(
@@ -222,7 +198,7 @@ class MainPage:
             col=12)
         
 
-        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button]))
+        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button, tutorial_button]))
         self.page.add(ft.ResponsiveRow([self.recipe_name]))
 
 
@@ -373,7 +349,8 @@ def main(page: ft.Page):
     
     # Show the tutorial window on first launch
     if not tutorial_shown:
-        tutorial_window(page)
+        tutorial = TutorialWindow(page)
+        tutorial.show()
         tutorial_shown = True
 
 
