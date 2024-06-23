@@ -42,22 +42,22 @@ class TutorialWindow:
 
     def show(self):
         close_button = ft.IconButton(icon=ft.icons.CLOSE, on_click=self.close_tutorial)
-        prev_button = ft.IconButton(icon=ft.icons.CHEVRON_LEFT, on_click=self.previous_slide, tooltip="Previous Slide")
-        next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=self.next_slide, tooltip="Next Slide")
+        prev_button = ft.IconButton(icon=ft.icons.CHEVRON_LEFT, on_click=self.previous_slide)
+        next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=self.next_slide)
 
-        self.dialog = ft.AlertDialog(
+        self.page.dialog = ft.AlertDialog(
             modal=True,
             content=ft.Container(
                 content=ft.Column([
                     ft.Row([ft.Container(), close_button], alignment=ft.MainAxisAlignment.END),
-                    ft.Row([prev_button, ft.Container(content=ft.Column([self.image, self.text]), alignment=ft.alignment.center), next_button], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
+                    ft.Container(content=ft.Column([self.image, self.text]),alignment=ft.alignment.center,expand=True),
+                    ft.Row([prev_button, next_button], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)          
                 ]),
                 alignment=ft.alignment.center,
                 width=600,
                 height=400
             )
         )
-        self.page.dialog = self.dialog
         self.page.dialog.open = True
         self.page.update()
 
