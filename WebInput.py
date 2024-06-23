@@ -9,7 +9,7 @@ class MainPage:
     def __init__(self, page):
         self.page = page
         self.path = os.path.dirname(os.path.realpath(__file__))
-        self.text_elements = []
+        self.text_elements = None
         self.input_rows = []
         self.plots = []
         self.computing = False
@@ -19,7 +19,7 @@ class MainPage:
     # Function to add a row
     def add_row(self, e):
 
-        if len(self.plots) > 0 or len(self.text_elements) > 0:
+        if len(self.plots) > 0 or (self.text_elements is not None):
             self.remove_all_output(e)
 
         name_input = ft.TextField(
@@ -56,6 +56,8 @@ class MainPage:
     
     # Function to delete a row
     def delete_row(self, e):
+        if len(self.plots) > 0 or (self.text_elements is not None):
+            self.remove_all_output(e)
         if len(self.input_rows) > 0:
             self.page.remove(self.input_rows.pop())
 
@@ -154,8 +156,6 @@ class MainPage:
 
         self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button]))
         self.page.add(ft.ResponsiveRow([self.recipe_name]))
-
-
  
     # Function to create a iconbutton
     def create_icon_button(self, icon, icon_size, on_click, tooltip):
@@ -234,30 +234,41 @@ class MainPage:
     def output(self, samples, ingredients):
         mean_sample = np.mean(samples, axis=0)
         std_sample = np.std(samples, axis=0)
-        textSize = 11
-        textSize2 = 14
-        
+        textSize = 20  
+
         recipe_name = self.recipe_name.value
-        length = len(ingredients)
+
+        # Find the maximum length of the ingredient names
+        max_length = max(len(ingredient) for ingredient in ingredients)
         
-        self.text_elements = [
-            Text("Dish: " + recipe_name, size = textSize2),
-            Text(f"{length} ingredients in total", size = textSize2),
-            Text("=" * 55, size = textSize)
-            ]
-        for i, zutat in enumerate(ingredients):
-            self.text_elements.append(Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%", size = textSize))
-        self.text_elements.append(Text("=" * 55, size = textSize))
+        combined_text = f"Dish: {recipe_name}\n"
+
+        # Create the aligned text
+        for i, ingredient in enumerate(ingredients):
+            combined_text += f"{ingredient:<30} : {mean_sample[i] * 100:5.2g}% +/- {2 * std_sample[i] * 100:4.2f}%\n"
         
+        output = ft.ResponsiveRow([
+            ft.Container(
+                content=ft.Text(
+                    combined_text.strip(),
+                    size=textSize                
+                ),
+                bgcolor=ft.colors.SURFACE_VARIANT,
+                padding=10,
+                border_radius=10,
+                col={"xs": 12, "md": 6}
+            )
+        ])
         
-        for element in self.text_elements:
-            self.page.add(element)
+        self.text_elements = output
+        self.page.add(self.text_elements)
+
         
     def delete_output_text(self):
-        if self.text_elements:
-            for i in range(len(self.text_elements)):
-                self.page.remove(self.text_elements.pop())
-                self.page.update()
+        if self.text_elements is not None:
+            self.page.remove(self.text_elements)
+            self.text_elements = None
+
                         
     def remove_all_output(self,e):
         self.delete_output_text()
