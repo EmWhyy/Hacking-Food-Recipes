@@ -35,13 +35,7 @@ def execute_mcmc(Zutaten, A, a, B, b, Nutrients, page: ft.Page):
     script_dir = os.path.dirname(os.path.realpath(__file__))
     asset_dir = os.path.join(script_dir, "plots")
     
-    plot_matrix(A, B, asset_dir)
-    plot_sample(SAMPLES, Zutaten, D, asset_dir)
-    plot_graph(SAMPLES, asset_dir)
 
-
-    #WebInput.MainPage.output2(SAMPLES, Zutaten, D, page, recipe_name)
-    # output(SAMPLES, Zutaten, D, page, recipe_name)
 
     # DataManager.save_data(Zutaten, Nutrients, recipe_name)
     

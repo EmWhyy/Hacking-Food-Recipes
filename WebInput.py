@@ -364,5 +364,5 @@ def main(page: ft.Page):
 
 
 # Swap between the two lines below to run the app in the browser or in the terminal   
-ft.app(main, assets_dir="./backend/plots")   
-# ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/plots")
+ft.app(main, assets_dir="./backend/tutorial_pictures")   
+# ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
