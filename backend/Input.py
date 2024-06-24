@@ -69,7 +69,6 @@ def createMatrices(Ingredients, givenAmounts, Nutrients, page: ft.Page):
                 n -= 1
 
         result = MainCode.execute_mcmc(Ingredients, A, a, B, b, Nutrients, page)
-    print(result)
     return result
     # plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
     # # Set font because it uses a font which is not on every computer
