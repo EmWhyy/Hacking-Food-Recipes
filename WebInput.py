@@ -11,9 +11,16 @@ class TutorialWindow:
     def __init__(self, page):
         self.page = page
         self.slides = [
-            {"image": "image1.png", "text": "This is part 1"},
-            {"image": "image2.png", "text": "This is part 2"},
-            {"image": "image3.png", "text": "This is part 3"},
+            {"image": "backend/tutorial_pictures/frieren.jpg", "text": "Welcome to our Recipe Calculator! \nThis application helps you calculate the optimal ingredient ratios for your recipes.\nStart by entering the name of your recipe and then add your ingredients along with their quantities."},
+            {"image": "backend/tutorial_pictures/tutorial_recipe_name.png", "text": "Enter the name of your recipe at the top.\nThis serves as the title and is the first step in creating a new recipe."},
+            {"image": "backend/tutorial_pictures/tutorial_valid_input.png", "text": "Here you can input the ingredients of your recipe along with their quantities.\nEnter the quantities as decimal numbers (e.g., 0.6 for 60%).\nThis forms the basis for the recipe calculations."},
+            {"image": "backend/tutorial_pictures/tutorial_new_recipe.png", "text": "The 'New Recipe' button at the top left clears all outputs and lets you start fresh.\nThis is useful when you want to create a new recipe from scratch."},
+            {"image": "backend/tutorial_pictures/tutorial_toggle_darkmode.png", "text": "The 'Toggle Dark Mode' button switches the appearance of the page between a light and dark mode according to your preference."},
+            {"image": "backend/tutorial_pictures/tutorial_toggle_plotbuttons.png", "text": "The 'Show Plots' switch displays graphs of our 100 samples (various ingredient ratios).\nThis provides a visual representation of the calculated results."},
+            {"image": "backend/tutorial_pictures/tutorial_add_and_remove_button.png", "text": "The blue and red buttons at the bottom right add or remove input rows.\nHere you can enter ingredient names and their quantities in decimal form."},
+            {"image": "backend/tutorial_pictures/tutorial_compute_button.png", "text": "The green button at the bottom left starts the calculation.\nThis is the most important step to analyze the entered ingredient ratios and get the results."},
+            {"image": "backend/tutorial_pictures/tutorial_tutorial_button.png", "text": "The 'i' button brings you back to the tutorial.\nThis is helpful if you need a refresher on how to use the application."},
+
         ]
         self.current_slide = 0
         self.image = ft.Image(src=self.slides[self.current_slide]["image"])
@@ -54,8 +61,8 @@ class TutorialWindow:
                     ft.Row([prev_button, next_button], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)          
                 ]),
                 alignment=ft.alignment.center,
-                width=600,
-                height=400
+                width=1200,
+                height=800
             )
         )
         self.page.dialog.open = True
