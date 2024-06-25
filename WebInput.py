@@ -27,9 +27,21 @@ class TutorialWindow:
         self.text = ft.Text(self.slides[self.current_slide]["text"])
         self.dialog = None
 
-    def close_tutorial(self, e):
+    def close_tutorial(self, e=None):
+        print("closing tutorial")
         self.page.dialog.open = False
+        self.page.remove(self.overlay)
         self.page.update()
+        
+    def close_on_outside_click(self, e):
+        print(f"Click at ({e.page_x}, {e.page_y})")
+        dialog_bounds = self.page.dialog.content.bounds
+        print(f"Dialog bounds: left={dialog_bounds.left}, right={dialog_bounds.right}, top={dialog_bounds.top}, bottom={dialog_bounds.bottom}")
+        if not (dialog_bounds.left <= e.page_x <= dialog_bounds.right and
+                dialog_bounds.top <= e.page_y <= dialog_bounds.bottom):
+            print("clicked outside")
+            self.close_tutorial()
+
 
     def update_slide(self):
         slide = self.slides[self.current_slide]
@@ -48,10 +60,19 @@ class TutorialWindow:
             self.update_slide()
 
     def show(self):
+        print("showing tutorial")
         close_button = ft.IconButton(icon=ft.icons.CLOSE, on_click=self.close_tutorial)
         prev_button = ft.IconButton(icon=ft.icons.CHEVRON_LEFT, on_click=self.previous_slide)
         next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=self.next_slide)
-
+        
+        self.overlay = ft.Container(
+            width=self.page.width,
+            height=self.page.height,
+            on_click=self.close_on_outside_click,
+            bgcolor=ft.colors.TRANSPARENT
+        )
+        self.page.add(self.overlay)
+        
         self.page.dialog = ft.AlertDialog(
             modal=True,
             content=ft.Container(
@@ -63,10 +84,12 @@ class TutorialWindow:
                 alignment=ft.alignment.center,
                 width=1200,
                 height=800
-            )
+            ),
+            on_dismiss=self.close_tutorial
         )
         self.page.dialog.open = True
         self.page.update()
+        print("Listener registered for outside clicks")
 
 class MainPage:
     def __init__(self, page):
@@ -364,5 +387,5 @@ def main(page: ft.Page):
 
 
 # Swap between the two lines below to run the app in the browser or in the terminal   
-#ft.app(main, assets_dir="./backend/tutorial_pictures")   
-ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
+ft.app(main, assets_dir="./backend/tutorial_pictures")   
+#ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
