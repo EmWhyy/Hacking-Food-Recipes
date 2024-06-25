@@ -219,6 +219,7 @@ class MainPage:
 
         self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button, tutorial_button]))
         self.page.add(ft.ResponsiveRow([self.recipe_name]))
+
  
     # Function to create a iconbutton
     def create_icon_button(self, icon, icon_size, on_click, tooltip):
@@ -295,6 +296,10 @@ class MainPage:
         
         
     def output(self, samples, ingredients):
+        #TODO
+
+    
+
         mean_sample = np.mean(samples, axis=0)
         std_sample = np.std(samples, axis=0)
         textSize = 20  
@@ -304,26 +309,27 @@ class MainPage:
         # Find the maximum length of the ingredient names
         max_length = max(len(ingredient) for ingredient in ingredients)
         
-        combined_text = f"Dish: {recipe_name}\n"
+        combined_text = f"Dish: {recipe_name}"
+        rows = []
 
         # Create the aligned text
         for i, ingredient in enumerate(ingredients):
-            combined_text += f"{ingredient:<30} : {mean_sample[i] * 100:5.2g}% +/- {2 * std_sample[i] * 100:4.2f}%\n"
-        
-        output = ft.ResponsiveRow([
-            ft.Container(
-                content=ft.Text(
-                    combined_text.strip(),
-                    size=textSize                
-                ),
-                bgcolor=ft.colors.SURFACE_VARIANT,
-                padding=10,
-                border_radius=10,
-                col={"xs": 12, "md": 6}
+            # combined_text += f"{ingredient:<30} : {mean_sample[i] * 100:5.2g}% +/- {2 * std_sample[i] * 100:4.2f}%\n"
+            rows.append(ft.DataRow(cells=[
+                ft.DataCell(ft.Text(ingredient)),
+                ft.DataCell(ft.Text(f"{mean_sample[i] * 100:5.2g}%")),
+                ft.DataCell(ft.Text(f"+/- {2 * std_sample[i] * 100:4.2f}%"))
+            ]))
+            Output_tabel = ft.DataTable(
+                columns=[
+                    ft.DataColumn(ft.Text("Ingredient")),
+                    ft.DataColumn(ft.Text("Amount")),
+                    ft.DataColumn(ft.Text("Deviation")),
+                ],
+                rows = rows,
+                
             )
-        ])
-        
-        self.text_elements = output
+        self.text_elements = Output_tabel
         self.page.add(self.text_elements)
 
         
@@ -375,5 +381,5 @@ def main(page: ft.Page):
 
 
 # Swap between the two lines below to run the app in the browser or in the terminal   
-#ft.app(main, assets_dir="./backend/tutorial_pictures")   
-ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
+ft.app(main, assets_dir="./backend/tutorial_pictures")   
+#ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
