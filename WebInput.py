@@ -296,40 +296,30 @@ class MainPage:
         
         
     def output(self, samples, ingredients):
-        #TODO
-
-    
 
         mean_sample = np.mean(samples, axis=0)
         std_sample = np.std(samples, axis=0)
-        textSize = 20  
-
-        recipe_name = self.recipe_name.value
-
-        # Find the maximum length of the ingredient names
-        max_length = max(len(ingredient) for ingredient in ingredients)
-        
-        combined_text = f"Dish: {recipe_name}"
+        textSize = 15  
+        recipe_name = ft.Text("Dish: " + self.recipe_name.value, theme_style=ft.TextThemeStyle.TITLE_MEDIUM)
         rows = []
 
-        # Create the aligned text
+        
         for i, ingredient in enumerate(ingredients):
-            # combined_text += f"{ingredient:<30} : {mean_sample[i] * 100:5.2g}% +/- {2 * std_sample[i] * 100:4.2f}%\n"
             rows.append(ft.DataRow(cells=[
-                ft.DataCell(ft.Text(ingredient)),
-                ft.DataCell(ft.Text(f"{mean_sample[i] * 100:5.2g}%")),
-                ft.DataCell(ft.Text(f"+/- {2 * std_sample[i] * 100:4.2f}%"))
+                ft.DataCell(ft.Text(ingredient, size=textSize)),
+                ft.DataCell(ft.Text(f"{mean_sample[i] * 100:5.2g}%", size=textSize)),
+                ft.DataCell(ft.Text(f"+/- {2 * std_sample[i] * 100:4.2f}%", size=textSize))
             ]))
             Output_tabel = ft.DataTable(
                 columns=[
-                    ft.DataColumn(ft.Text("Ingredient")),
-                    ft.DataColumn(ft.Text("Amount")),
-                    ft.DataColumn(ft.Text("Deviation")),
+                    ft.DataColumn(ft.Text("Ingredient", size=textSize, weight=ft.FontWeight.BOLD)),
+                    ft.DataColumn(ft.Text("Amount", size=textSize, weight=ft.FontWeight.BOLD)),
+                    ft.DataColumn(ft.Text("Deviation", size=textSize, weight=ft.FontWeight.BOLD)),
                 ],
                 rows = rows,
                 
             )
-        self.text_elements = Output_tabel
+        self.text_elements = ft.Column([recipe_name, Output_tabel])
         self.page.add(self.text_elements)
 
         
