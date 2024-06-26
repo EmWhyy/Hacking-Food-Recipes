@@ -10,7 +10,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 matplotlib.use("svg")
-tutorial_shown = False
+tutorial_shown = True
 
 class TutorialWindow:
     def __init__(self, page):
@@ -156,34 +156,37 @@ class MainPage:
         # legend 
         ax.legend(["Mean", "Standard Deviation"], loc='upper right')
         
+        
         chart_container = ft.Container(
             content=MatplotlibChart(fig, expand=True),
             width=600,  
             height=400
             )
         
-        self.plot = chart_container
+        panel = ft.ExpansionPanelList(
+             
+            expand_icon_color=ft.colors.BLUE,
+            elevation=8,
+            divider_color=ft.colors.BLUE,
+            controls=[
+                ft.ExpansionPanel(
+                    header=ft.ListTile(title=ft.Text("Plot of the Recipe")),
+                    content=chart_container,
+                    bgcolor=ft.colors.GREEN,
+                )
+            ]
+        )
+        
+        
+        self.plot = panel
         self.page.add(self.plot)
         
-        
-    def show_plot(self,e):
-        if (self.plot != None):
-            self.page.add(self.plot)
-        else:
-            self.popup_snackbar("No Plot to show", ft.colors.RED_200)
-        
     def remove_plot(self,e):
-        # if (self.plot != None):
-        #     self.page.remove(self.plot)
-        #     self.page.update()
-        pass
+        if self.plot is not None:
+            self.page.remove(self.plot)
+            self.page.update()
+        
                 
-    def plot_change(self, e):
-        # if e.control.value:
-        #     self.show_plot(e)
-        # else:
-        #     self.remove_plot(e)
-        pass
 
 # Plot region end
 
@@ -204,7 +207,6 @@ class MainPage:
 
         toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode,col=colums_ElevatedButton)
         new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe, col=colums_ElevatedButton,)
-        switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plot_change, col=colums_Switch )
         tutorial_button = ft.ElevatedButton(content=ft.Icon(ft.icons.INFO), on_click=lambda e: TutorialWindow(self.page).show(), col={"sm": 6, "md": 4, "lg": 2})
         
         compute_button = self.create_icon_button(ft.icons.CALCULATE, 48, self.compute, "Compute")
@@ -226,7 +228,7 @@ class MainPage:
             col = colums_Recipe)
         
 
-        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button, tutorial_button]))
+        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button, tutorial_button]))
         self.page.add(ft.ResponsiveRow([self.recipe_name]))
 
 
@@ -263,9 +265,6 @@ class MainPage:
             self.popup_snackbar("Please wait until the computation is finished", ft.colors.RED_200)
             return
         
-        # delete the output text and the plot
-        self.remove_all_output(e)
-
         # get the inputs from the user
         inputs = self.get_inputs()
         
@@ -282,13 +281,15 @@ class MainPage:
         # set the computing flag to True
         self.computing = True
         
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
-        self.compute_plot(SAMPLES, ingredients)
+        # delete the output text and the plot
+        self.remove_all_output(e)
         
+        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
+       
         # Output the results
         self.output(SAMPLES,ingredients)
-        self.remove_plot(e)
-        
+        self.compute_plot(SAMPLES, ingredients)
+
         # set the computing flag to False
         self.computing = False 
 
@@ -331,7 +332,6 @@ class MainPage:
         if self.text_elements:
             for i in range(len(self.text_elements)):
                 self.page.remove(self.text_elements.pop())
-                self.page.update()
                         
     def remove_all_output(self,e):
         self.delete_output_text()
