@@ -8,7 +8,7 @@ import backend.Input as Input
 
 import matplotlib
 import matplotlib.pyplot as plt
-
+ 
 matplotlib.use("svg")
 tutorial_shown = True
 
@@ -141,21 +141,32 @@ class MainPage:
  # Function to show the plot
  
     def compute_plot(self, SAMPLES, ingredients):
+        color = "white" if self.page.theme_mode == "dark" else "black"
         
         mean_sample = np.mean(SAMPLES, axis=0)
         std_sample = np.std(SAMPLES, axis=0)
         
         fig, ax = plt.subplots()
-        ax.bar(ingredients, mean_sample * 100, align='center', color='black', alpha=0.5, ecolor='black', capsize=10)
-        ax.errorbar(ingredients, mean_sample * 100, yerr=std_sample * 100, fmt='none', ecolor='red', capsize=5)
+        
+        fig.patch.set_facecolor('none')
+        ax.set_facecolor('none')
+        
+        ax.bar(ingredients, mean_sample * 100, align='center', color='#0b105c', alpha=0.7, ecolor='none', capsize=10)
+        ax.errorbar(ingredients, mean_sample * 100, yerr=std_sample * 100, fmt='none', ecolor='#FF5722', capsize=5)
 
-        ax.set_ylabel('Porportion of Ingredients')
-        ax.set_title('Mean and Standard Deviation of Ingredients in the Recipe')
+
+        ax.set_ylabel('Proportion of Ingredients', color=color)
+        ax.set_title('Mean and Standard Deviation of Ingredients in the Recipe', color=color)
+        # Set axis ticks and labels to white
+        ax.tick_params(axis='x', colors=color)
+        ax.tick_params(axis='y', colors=color)
+        ax.yaxis.label.set_color(color)
+        ax.xaxis.label.set_color(color)
+        
+        
+        ax.legend(["Mean", "Standard Deviation"], loc='upper right', facecolor='#333333', edgecolor='none', labelcolor=color)
         ax.set_ylim(0,100) 
-        
-        # legend 
-        ax.legend(["Mean", "Standard Deviation"], loc='upper right')
-        
+    
         
         chart_container = ft.Container(
             content=MatplotlibChart(fig, expand=True),
@@ -164,27 +175,74 @@ class MainPage:
             )
         
         panel = ft.ExpansionPanelList(
-             
             expand_icon_color=ft.colors.BLUE,
             elevation=8,
-            divider_color=ft.colors.BLUE,
             controls=[
                 ft.ExpansionPanel(
                     header=ft.ListTile(title=ft.Text("Plot of the Recipe")),
                     content=chart_container,
-                    bgcolor=ft.colors.GREEN,
                 )
             ]
-        )
-        
-        
+        )        
         self.plot = panel
         self.page.add(self.plot)
         
-    def remove_plot(self,e):
-        if self.plot is not None:
+        
+        # oder boxplot
+        # color = "white" if self.page.theme_mode == "dark" else "black"
+        
+        # fig, ax = plt.subplots()
+        
+        # fig.patch.set_facecolor('none')
+        # ax.set_facecolor('none')
+
+        # # Create boxplots
+        # box = ax.boxplot(SAMPLES * 100, patch_artist=True,
+        #                  boxprops=dict(facecolor='#0b105c', color=color),
+        #                  capprops=dict(color=color),
+        #                  whiskerprops=dict(color=color),
+        #                  flierprops=dict(markeredgecolor=color),
+        #                  medianprops=dict(color='#FF5722'))
+
+        # # Set labels and title
+        # ax.set_xticks(np.arange(1, len(ingredients) + 1))
+        # ax.set_xticklabels(ingredients, rotation=45, ha="right", color=color)
+        # ax.set_ylabel('Proportion of Ingredients', color=color)
+        # ax.set_title('Boxplots of Ingredients in the Recipe', color=color)
+
+        # # Set axis ticks and labels to the appropriate color
+        # ax.tick_params(axis='x', colors=color)
+        # ax.tick_params(axis='y', colors=color)
+        # ax.yaxis.label.set_color(color)
+        # ax.xaxis.label.set_color(color)
+
+        # ax.set_ylim(0, 100)
+
+        # chart_container = ft.Container(
+        #     content=MatplotlibChart(fig, expand=True),
+        #     width=600,  
+        #     height=400
+        # )
+        
+        # panel = ft.ExpansionPanelList(
+        #     expand_icon_color=ft.colors.BLUE,
+        #     elevation=8,
+        #     controls=[
+        #         ft.ExpansionPanel(
+        #             header=ft.ListTile(title=ft.Text("Plot of the Recipe", color=color)),
+        #             content=chart_container,
+        #         )
+        #     ]
+        # )
+        
+        # self.plot = panel
+        # self.page.add(self.plot)
+        
+    def remove_plot(self):
+        if self.plot is not None and self.plot in self.page.controls:
             self.page.remove(self.plot)
             self.page.update()
+            self.plot = None
         
                 
 
@@ -334,8 +392,10 @@ class MainPage:
                 self.page.remove(self.text_elements.pop())
                         
     def remove_all_output(self,e):
+        self.remove_plot()
         self.delete_output_text()
-        self.remove_plot(e)
+        
+        
 
         
     # delete all output text and plot
