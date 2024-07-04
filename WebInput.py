@@ -327,13 +327,18 @@ class MainPage:
         recipe_name = ft.Text("Dish: " + self.recipe_name.value, theme_style=ft.TextThemeStyle.TITLE_MEDIUM)
         rows = []
 
-        if self.recipe_whole_amount.value == "":
-            self.recipe_whole_amount.value = "100"
+        # catching wrong input for the dish amount
+        whole_amount = self.recipe_whole_amount.value
+        if whole_amount == "":
+            whole_amount = "100"
+        if not whole_amount.isdigit():
+            whole_amount = "100"
+            self.popup_snackbar("Please enter a number for the dish amount", ft.colors.RED_200)
             
         for i, ingredient in enumerate(ingredients):
             rows.append(ft.DataRow(cells=[
                 ft.DataCell(ft.Text(ingredient, size=textSize)),
-                ft.DataCell(ft.Text(f"{round(mean_sample[i] * int(self.recipe_whole_amount.value))}g", size=textSize)),
+                ft.DataCell(ft.Text(f"{round(mean_sample[i] * int(whole_amount))}g", size=textSize)),
                 ft.DataCell(ft.Text(f"{mean_sample[i] * 100:5.2g}%", size=textSize)),
                 ft.DataCell(ft.Text(f"+/- {2 * std_sample[i] * 100:4.2f}%", size=textSize))
             ]))
