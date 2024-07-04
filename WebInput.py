@@ -89,7 +89,7 @@ class MainPage:
             label="Ingredient Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
             height = 80,
-            col={"xs": 7.416,"md":3.708 }
+            col={"xs": 7.416,"md":6 }
             )
         
         amount_input = ft.TextField(
@@ -98,10 +98,10 @@ class MainPage:
             on_change= self.textbox_changed,
             keyboard_type=ft.KeyboardType.NUMBER,
             height = 80,
-            col={"xs": 4.584, "md": 2.292}
+            col={"xs": 4.584, "md": 3}
             )
         
-        input_row = ft.ResponsiveRow([name_input, amount_input])
+        input_row = ft.ResponsiveRow([name_input, amount_input], alignment = ft.MainAxisAlignment.CENTER)
         self.input_rows.append(input_row)
         self.page.add(input_row)
         
@@ -189,14 +189,13 @@ class MainPage:
         # Buttons and Recipe-Field
         # screen is divided into 12 colums for all sizes
         # "md": 3 means this button takes up 3 of these 12 colums on medium screens and larger
-        colums_ElevatedButton = {"xs": 12,"md": 2.472} 
-        colums_Switch = {"xs": 6, "md": 2.472}
-        colums_Recipe = {"xs": 12, "md": 6}
+        colums_ElevatedButton = {"xs": 12,"md": 2.25} 
+        colums_Recipe = {"xs": 12, "md": 9}
 
         toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode,col=colums_ElevatedButton)
         new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe, col=colums_ElevatedButton,)
-        switch_plots_button = ft.Switch(label = "Show Plots", on_change = self.plots_change, col=colums_Switch )
-        tutorial_button = ft.ElevatedButton(content=ft.Icon(ft.icons.INFO), on_click=lambda e: TutorialWindow(self.page).show(), col={"sm": 6, "md": 4, "lg": 2})
+        switch_plots_button = ft.ElevatedButton("Show Plots", on_click = self.plots_change, col= colums_ElevatedButton )
+        tutorial_button = ft.ElevatedButton(content=ft.Icon(ft.icons.INFO), on_click=lambda e: TutorialWindow(self.page).show(), col=colums_ElevatedButton)
         
         compute_button = self.create_icon_button(ft.icons.CALCULATE, 48, self.compute, "Compute")
         add_button = self.create_icon_button(ft.icons.ADD, 40, self.add_row, "Add new ingredient")
@@ -217,8 +216,8 @@ class MainPage:
             col = colums_Recipe)
         
 
-        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button, tutorial_button]))
-        self.page.add(ft.ResponsiveRow([self.recipe_name]))
+        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button, tutorial_button], alignment = ft.MainAxisAlignment.CENTER))
+        self.page.add(ft.ResponsiveRow([self.recipe_name], alignment = ft.MainAxisAlignment.CENTER))
 
  
     # Function to create a iconbutton
