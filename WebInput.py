@@ -93,7 +93,7 @@ class MainPage:
             )
         
         amount_input = ft.TextField(
-            label="Amount",
+            label="Amount in %",
             border_color= "black" if self.page.theme_mode == "light" else "white",
             on_change= self.textbox_changed,
             keyboard_type=ft.KeyboardType.NUMBER,
@@ -258,7 +258,8 @@ class MainPage:
         inputs = self.get_inputs()
         
         ingredients = [item[0] for item in inputs]
-        values_input = [float(item[1]) if item[1] != '' else None for item in inputs]
+        values_input = [float(item[1])/100 if item[1] != '' else None for item in inputs]
+
 
         Nutrients =  None       # Nutrients should be provided in the input later on
         if Nutrients == None:
@@ -282,10 +283,40 @@ class MainPage:
 
    
     def validate_input(self, values_input):
-        if sum([float(value) if value != None else 0 for value in values_input]) >= 1:
+        temp = values_input.copy()
+        max_index = len(values_input) - 1
+
+        #get minimum value of the inputs and check if its under 100%
+        for ind in range(len(values_input)):
+            if values_input[max_index - ind] == None:
+                if max_index - ind + 1 < len(values_input):
+                    temp[max_index - ind] = temp[max_index - ind + 1]
+                else:
+                    temp[max_index - ind] = 0
+        #print(values_input)
+        #print(temp)
+        if sum([float(value) for value in temp]) >= 1:
             self.page.show_snack_bar(
                 ft.SnackBar(
-                    ft.Text("The given amounts should be less than 1"), 
+                    ft.Text("With those inputs the total amount is going to be over 100%! Please adjust your inputs!"), 
+                    open=True,
+                    bgcolor=ft.colors.RED_200)
+            )
+            return False
+        
+        temp = values_input.copy()
+        #get maximum value of the inputs and check if its over 100%
+        for ind in range(len(values_input)):
+            if values_input[ind] == None:
+                if ind - 1 >= 0:
+                    temp[ind] = temp[ind - 1]
+                else:
+                    temp[ind] = 0
+        #print(temp)
+        if sum([float(value) for value in temp]) < 1:
+            self.page.show_snack_bar(
+                ft.SnackBar(
+                    ft.Text("With those inputs the total amount is going to be under 100%! Please adjust your inputs!"), 
                     open=True,
                     bgcolor=ft.colors.RED_200)
             )
