@@ -5,7 +5,7 @@ import sys
 import os
 import backend.Input as Input
 
-tutorial_shown = False
+tutorial_shown = True
 
 class TutorialWindow:
     def __init__(self, page):
@@ -209,15 +209,40 @@ class MainPage:
         
     
         # name of the recipe
+        # name_input = ft.TextField(
+        #     label="Ingredient Name",
+        #     border_color= "black" if self.page.theme_mode == "light" else "white",
+        #     height = 80,
+        #     col={"xs": 7.416,"md":6 }
+        #     )
+        
+        # amount_input = ft.TextField(
+        #     label="Amount",
+        #     border_color= "black" if self.page.theme_mode == "light" else "white",
+        #     on_change= self.textbox_changed,
+        #     keyboard_type=ft.KeyboardType.NUMBER,
+        #     height = 80,
+        #     col={"xs": 4.584, "md": 3}
+        #     )
+        # input_row = ft.ResponsiveRow([name_input, amount_input], alignment = ft.MainAxisAlignment.CENTER)
         self.recipe_name = ft.TextField(
             label="Recipe Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
             height = 80,
-            col = colums_Recipe)
+            col = {"xs": 7.416,"md":7 })
         
-
+        self.recipe_whole_amount = ft.TextField(
+            label="Dish Amount in gramm",
+            hint_text="Standart 100",
+            border_color= "black" if self.page.theme_mode == "light" else "white",
+            on_change= self.textbox_changed,
+            height = 80,
+            col = {"xs": 4.584, "md":2 }
+            )
+        
+        
         self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button, tutorial_button], alignment = ft.MainAxisAlignment.CENTER))
-        self.page.add(ft.ResponsiveRow([self.recipe_name], alignment = ft.MainAxisAlignment.CENTER))
+        self.page.add(ft.ResponsiveRow([self.recipe_name, self.recipe_whole_amount], alignment = ft.MainAxisAlignment.CENTER))
 
  
     # Function to create a iconbutton
@@ -302,10 +327,13 @@ class MainPage:
         recipe_name = ft.Text("Dish: " + self.recipe_name.value, theme_style=ft.TextThemeStyle.TITLE_MEDIUM)
         rows = []
 
-        
+        if self.recipe_whole_amount.value == "":
+            self.recipe_whole_amount.value = "100"
+            
         for i, ingredient in enumerate(ingredients):
             rows.append(ft.DataRow(cells=[
                 ft.DataCell(ft.Text(ingredient, size=textSize)),
+                ft.DataCell(ft.Text(f"{round(mean_sample[i] * int(self.recipe_whole_amount.value))}g", size=textSize)),
                 ft.DataCell(ft.Text(f"{mean_sample[i] * 100:5.2g}%", size=textSize)),
                 ft.DataCell(ft.Text(f"+/- {2 * std_sample[i] * 100:4.2f}%", size=textSize))
             ]))
@@ -313,6 +341,7 @@ class MainPage:
                 columns=[
                     ft.DataColumn(ft.Text("Ingredient", size=textSize, weight=ft.FontWeight.BOLD)),
                     ft.DataColumn(ft.Text("Amount", size=textSize, weight=ft.FontWeight.BOLD)),
+                    ft.DataColumn(ft.Text("Percentage", size=textSize, weight=ft.FontWeight.BOLD)),
                     ft.DataColumn(ft.Text("Deviation", size=textSize, weight=ft.FontWeight.BOLD)),
                 ],
                 rows = rows,
