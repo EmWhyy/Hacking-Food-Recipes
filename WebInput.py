@@ -309,7 +309,7 @@ class MainPage:
                 ft.DataCell(ft.Text(f"{mean_sample[i] * 100:5.2g}%", size=textSize)),
                 ft.DataCell(ft.Text(f"+/- {2 * std_sample[i] * 100:4.2f}%", size=textSize))
             ]))
-            Output_tabel = ft.DataTable(
+            output_table = ft.DataTable(
                 columns=[
                     ft.DataColumn(ft.Text("Ingredient", size=textSize, weight=ft.FontWeight.BOLD)),
                     ft.DataColumn(ft.Text("Amount", size=textSize, weight=ft.FontWeight.BOLD)),
@@ -318,7 +318,12 @@ class MainPage:
                 rows = rows,
                 
             )
-        self.text_elements = ft.Column([recipe_name, Output_tabel])
+        
+        self.text_elements = ft.Column([
+                ft.Container(content=recipe_name, alignment=ft.alignment.center),
+                ft.Container(content=output_table, alignment=ft.alignment.center),
+            ],)
+        
         self.page.add(self.text_elements)
 
         
