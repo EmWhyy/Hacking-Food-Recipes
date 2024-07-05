@@ -5,7 +5,7 @@ import sys
 import os
 import backend.Input as Input
 
-tutorial_shown = False
+tutorial_shown = True
 
 class TutorialWindow:
     def __init__(self, page):
@@ -72,7 +72,7 @@ class MainPage:
     def __init__(self, page):
         self.page = page
         self.path = os.path.dirname(os.path.realpath(__file__))
-        self.text_elements = []
+        self.text_elements = None
         self.input_rows = []
         self.plots = []
         self.computing = False
@@ -82,7 +82,7 @@ class MainPage:
     # Function to add a row
     def add_row(self, e):
 
-        if len(self.plots) > 0 or len(self.text_elements) > 0:
+        if len(self.plots) > 0 or (self.text_elements is not None):
             self.remove_all_output(e)
 
         name_input = ft.TextField(
@@ -119,6 +119,8 @@ class MainPage:
     
     # Function to delete a row
     def delete_row(self, e):
+        if len(self.plots) > 0 or (self.text_elements is not None):
+            self.remove_all_output(e)
         if len(self.input_rows) > 0:
             self.page.remove(self.input_rows.pop())
 
@@ -207,16 +209,40 @@ class MainPage:
         
     
         # name of the recipe
+        # name_input = ft.TextField(
+        #     label="Ingredient Name",
+        #     border_color= "black" if self.page.theme_mode == "light" else "white",
+        #     height = 80,
+        #     col={"xs": 7.416,"md":6 }
+        #     )
+        
+        # amount_input = ft.TextField(
+        #     label="Amount",
+        #     border_color= "black" if self.page.theme_mode == "light" else "white",
+        #     on_change= self.textbox_changed,
+        #     keyboard_type=ft.KeyboardType.NUMBER,
+        #     height = 80,
+        #     col={"xs": 4.584, "md": 3}
+        #     )
+        # input_row = ft.ResponsiveRow([name_input, amount_input], alignment = ft.MainAxisAlignment.CENTER)
         self.recipe_name = ft.TextField(
             label="Recipe Name",
             border_color= "black" if self.page.theme_mode == "light" else "white",
             height = 80,
-            col = colums_Recipe)
+            col = {"xs": 7.416,"md":7 })
         
-
+        self.recipe_whole_amount = ft.TextField(
+            label="Dish Amount in gramm",
+            hint_text="Standart 100",
+            border_color= "black" if self.page.theme_mode == "light" else "white",
+            on_change= self.textbox_changed,
+            height = 80,
+            col = {"xs": 4.584, "md":2 }
+            )
+        
+        
         self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,switch_plots_button, tutorial_button], alignment = ft.MainAxisAlignment.CENTER))
-        self.page.add(ft.ResponsiveRow([self.recipe_name], alignment = ft.MainAxisAlignment.CENTER))
-
+        self.page.add(ft.ResponsiveRow([self.recipe_name, self.recipe_whole_amount], alignment = ft.MainAxisAlignment.CENTER))
 
  
     # Function to create a iconbutton
@@ -294,32 +320,52 @@ class MainPage:
         
         
     def output(self, samples, ingredients):
+
         mean_sample = np.mean(samples, axis=0)
         std_sample = np.std(samples, axis=0)
-        textSize = 11
-        textSize2 = 14
+        textSize = 15  
+        recipe_name = ft.Text("Dish: " + self.recipe_name.value, theme_style=ft.TextThemeStyle.TITLE_MEDIUM)
+        rows = []
+
+        # catching wrong input for the dish amount
+        whole_amount = self.recipe_whole_amount.value
+        if whole_amount == "":
+            whole_amount = "100"
+        if not whole_amount.isdigit():
+            whole_amount = "100"
+            self.popup_snackbar("Please enter a number for the dish amount", ft.colors.RED_200)
+            
+        for i, ingredient in enumerate(ingredients):
+            rows.append(ft.DataRow(cells=[
+                ft.DataCell(ft.Text(ingredient, size=textSize)),
+                ft.DataCell(ft.Text(f"{round(mean_sample[i] * int(whole_amount))}g", size=textSize)),
+                ft.DataCell(ft.Text(f"{mean_sample[i] * 100:5.2g}%", size=textSize)),
+                ft.DataCell(ft.Text(f"+/- {2 * std_sample[i] * 100:4.2f}%", size=textSize))
+            ]))
+            output_table = ft.DataTable(
+                columns=[
+                    ft.DataColumn(ft.Text("Ingredient", size=textSize, weight=ft.FontWeight.BOLD)),
+                    ft.DataColumn(ft.Text("Amount", size=textSize, weight=ft.FontWeight.BOLD)),
+                    ft.DataColumn(ft.Text("Percentage", size=textSize, weight=ft.FontWeight.BOLD)),
+                    ft.DataColumn(ft.Text("Deviation", size=textSize, weight=ft.FontWeight.BOLD)),
+                ],
+                rows = rows,
+                
+            )
         
-        recipe_name = self.recipe_name.value
-        length = len(ingredients)
+        self.text_elements = ft.Column([
+                ft.Container(content=recipe_name, alignment=ft.alignment.center),
+                ft.Container(content=output_table, alignment=ft.alignment.center),
+            ],)
         
-        self.text_elements = [
-            Text("Dish: " + recipe_name, size = textSize2),
-            Text(f"{length} ingredients in total", size = textSize2),
-            Text("=" * 55, size = textSize)
-            ]
-        for i, zutat in enumerate(ingredients):
-            self.text_elements.append(Text("{:>42}".format(zutat) + f": {mean_sample[i] * 100:5.2g}% +/- {2*std_sample[i] * 100:4.2f}%", size = textSize))
-        self.text_elements.append(Text("=" * 55, size = textSize))
-        
-        
-        for element in self.text_elements:
-            self.page.add(element)
+        self.page.add(self.text_elements)
+
         
     def delete_output_text(self):
-        if self.text_elements:
-            for i in range(len(self.text_elements)):
-                self.page.remove(self.text_elements.pop())
-                self.page.update()
+        if self.text_elements is not None:
+            self.page.remove(self.text_elements)
+            self.text_elements = None
+
                         
     def remove_all_output(self,e):
         self.delete_output_text()
