@@ -108,14 +108,20 @@ class MainPage:
     # Checks the textbox input for valid numbers
     def textbox_changed(self, e):
         try:
-            input = float(e.control.value)
-            e.control.border_color = "white"
-            e.control.helper_text = None
-            self.page.update()
+            # Check if the input is empty
+            if e.control.value.strip() == "": 
+                e.control.border_color = None  
+                e.control.helper_text = None
+            else:
+                input = float(e.control.value)
+                e.control.border_color = "white"
+                e.control.helper_text = None
         except:
             e.control.border_color = "red"
             e.control.helper_text = "Please enter a number"
-            self.page.update()
+        
+        self.page.update()
+
     
     # Function to delete a row
     def delete_row(self, e):
@@ -284,7 +290,13 @@ class MainPage:
         inputs = self.get_inputs()
         
         ingredients = [item[0] for item in inputs]
-        values_input = [float(item[1]) if item[1] != '' else None for item in inputs]
+        
+        # catch if user tries to compute with string as amount
+        try:
+            values_input = [float(item[1].strip()) if item[1].strip() != '' else None for item in inputs]
+        except:
+            self.popup_snackbar("Please enter a number", ft.colors.RED_200)
+            return
 
         Nutrients =  None       # Nutrients should be provided in the input later on
         if Nutrients == None:
