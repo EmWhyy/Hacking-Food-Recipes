@@ -322,8 +322,6 @@ class MainPage:
                     temp[max_index - ind] = temp[max_index - ind + 1]
                 else:
                     temp[max_index - ind] = 0
-        #print(values_input)
-        print(temp)
         if sum([float(value) for value in temp]) > 1:
             self.page.show_snack_bar(
                 ft.SnackBar(
