@@ -133,7 +133,7 @@ def MCMC(D, A, a, B, b,page: ft.Page, num_iter=int(1e7), thinning=int(1e5)):
     xi = x0
     
     # show progress bar in flet UI
-    loading_bar = ft.ProgressBar(width=610)
+    loading_bar = ft.ProgressBar()
     page.add(loading_bar)
     
     for i in tqdm(range(num_iter - 1)):
