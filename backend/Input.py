@@ -6,20 +6,13 @@ from tueplots import bundles
 from tueplots.constants.color import rgb
 
 
+
 # Function to create the needed Equality and Inequality matrices
 # this function might need to be changed in the future when we decide to also consider the Nutritional values of the products
 def createMatrices(Ingredients, givenAmounts, Nutrients, page: ft.Page):
-
-    if(givenAmounts.count(None) == 1):
-        # Plots fehlen für diesen Fall noch
-        temp = 1 - sum([x for x in givenAmounts if x != None])
-        givenAmounts[givenAmounts.index(None)] = temp
-        result = np.array([givenAmounts])
-
-    elif(givenAmounts.count(None) == 0):
-        # Plots fehlen für diesen Fall noch
-        result = np.array([givenAmounts])
-
+    testResult = checkForSimpleSolutions(Ingredients, givenAmounts, Nutrients, page)
+    if testResult is not None:
+        result = testResult
     else:
         plt.rcParams.update(bundles.beamer_moml())
         plt.rcParams.update({"figure.dpi": 200})
@@ -70,17 +63,51 @@ def createMatrices(Ingredients, givenAmounts, Nutrients, page: ft.Page):
 
         result = MainCode.execute_mcmc(Ingredients, A, a, B, b, Nutrients, page)
     return result
-    # plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
-    # # Set font because it uses a font which is not on every computer
-    # plt.rcParams['font.family'] = 'Arial'
-    # fig, axs = plt.subplots(1, 2)
-    # imA = axs[0].imshow(A, vmin=-1, vmax=1)
-    # axs[0].set_title("A")
-    # imB = axs[1].imshow(B, vmin=-1, vmax=1)
-    # axs[1].set_title("B")
-    # # fig.colorbar(imA, ax=axs[1]);
-    # plt.savefig("matrices.pdf")
-    #return A, a, B, b
+
+
+def checkForSimpleSolutions(Ingredients, givenAmounts, Nutrients, page: ft.Page):
+    max_index = len(givenAmounts) - 1
+    result = None
+
+    temp1 = givenAmounts.copy()
+    for ind in range(len(givenAmounts)):
+        if givenAmounts[max_index - ind] == None:
+            if max_index - ind + 1 < len(givenAmounts):
+                temp1[max_index - ind] = temp1[max_index - ind + 1]
+            else:
+                temp1[max_index - ind] = 0
+
+    temp2 = givenAmounts.copy()
+    for ind in range(len(givenAmounts)):
+        if givenAmounts[ind] == None:
+            if ind - 1 >= 0:
+                temp2[ind] = temp2[ind - 1]
+            else:
+                temp2[ind] = 0
+
+    # print(givenAmounts)
+    # print(temp1)
+    # print(temp2)
+
+    if(givenAmounts.count(None) == 1):
+        # Plots fehlen für diesen Fall noch
+        temp = 1 - sum([x for x in givenAmounts if x != None])
+        givenAmounts[givenAmounts.index(None)] = temp
+        result = np.array([givenAmounts])
+
+    elif(givenAmounts.count(None) == 0):
+        # Plots fehlen für diesen Fall noch
+        result = np.array([givenAmounts])
+    
+    elif sum([float(value) for value in temp1]) == 1:
+        result = np.array([temp1])
+    
+    elif sum([float(value) for value in temp2]) == 1:
+        result = np.array([temp2])
+    
+    return result
+
+
 
 
 #--------------------------------------------------------------
