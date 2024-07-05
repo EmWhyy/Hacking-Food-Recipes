@@ -352,7 +352,7 @@ class MainPage:
                 ingredients.append(item[0])
         
         try:
-            values_input = [float(item[1].strip()) if item[1].strip() != '' else None for item in inputs]
+            values_input = [float(item[1].strip())/100 if item[1].strip() != '' else None for item in inputs]
         except:
             self.popup_snackbar("Please enter a number", ft.colors.RED_200)
             return
