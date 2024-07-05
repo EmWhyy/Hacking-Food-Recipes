@@ -325,15 +325,24 @@ class MainPage:
         
         # get the inputs from the user
         inputs = self.get_inputs()
+
+        ingredients = []
+        empty_counter = 1
+        # fill missing ingredient names with "ingredient miss x"
+        for item in inputs:
+            if item[0] == "":
+                ingredients.append(f"ingredient miss {empty_counter}")
+                empty_counter += 1
+            else:
+                ingredients.append(item[0])
         
-        ingredients = [item[0] for item in inputs]
         values_input = [float(item[1]) if item[1] != '' else None for item in inputs]
 
         Nutrients =  None       # Nutrients should be provided in the input later on
         if Nutrients == None:
             Nutrients = [0,0,0,0,0,0]
 
-        if not self.validate_input(values_input):
+        if not self.validate_input(values_input,ingredients):
             return
 
         # set the computing flag to True
@@ -352,7 +361,7 @@ class MainPage:
         self.computing = False 
 
    
-    def validate_input(self, values_input):
+    def validate_input(self, values_input, ingredients):
         if sum([float(value) if value != None else 0 for value in values_input]) >= 1:
             self.page.show_snack_bar(
                 ft.SnackBar(
@@ -361,6 +370,15 @@ class MainPage:
                     bgcolor=ft.colors.RED_200)
             )
             return False
+        
+        # check if the ingredient names are unique
+        n = len(ingredients)
+        for i in range(n):
+            for j in range(i + 1, n):
+                if ingredients[i] == ingredients[j]:
+                    self.popup_snackbar("Please enter non-repeating ingredient names", ft.colors.RED_200)
+                    return False
+     
         return True
         
         
