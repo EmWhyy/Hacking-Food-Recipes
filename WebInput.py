@@ -52,14 +52,6 @@ class TutorialWindow:
         prev_button = ft.IconButton(icon=ft.icons.CHEVRON_LEFT, on_click=self.previous_slide)
         next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=self.next_slide)
         
-        self.overlay = ft.Container(
-            width=self.page.width,
-            height=self.page.height,
-            on_click=self.close_on_outside_click,
-            bgcolor=ft.colors.TRANSPARENT
-        )
-        self.page.add(self.overlay)
-        
         self.page.dialog = ft.AlertDialog(
             modal=True,
             content=ft.Container(
