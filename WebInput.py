@@ -19,13 +19,14 @@ class TutorialWindow:
         self.page = page
         self.slides = [
             {"image": "quby-high-five.png", "text": "Welcome to our Recipe Calculator! \nThis application helps you calculate the optimal ingredient ratios for your recipes.\nStart by entering the name of your recipe and then add your ingredients along with their quantities."},
-            {"image": "tutorial_recipe_name.png", "text": "Enter the name of your recipe at the top.\nThis serves as the title and is the first step in creating a new recipe."},
+            {"image": "tutorial_dish_amount.png", "text": "Here you can input the amount of the dish in grams.\nThis is useful to calculate the amount of each ingredient in the recipe.\nIf you don't enter a value, the default value is 100 grams."},
             {"image": "tutorial_valid_input.png", "text": "Here you can input the ingredients of your recipe along with their quantities.\nEnter the quantities as decimal numbers (e.g., 0.6 for 60%).\nThis forms the basis for the recipe calculations."},
-            {"image": "tutorial_new_recipe.png", "text": "The 'New Recipe' button at the top left clears all outputs and lets you start fresh.\nThis is useful when you want to create a new recipe from scratch."},
-            {"image": "tutorial_toggle_darkmode.png", "text": "The 'Toggle Dark Mode' button switches the appearance of the page between a light and dark mode according to your preference."},
-            {"image": "tutorial_toggle_plotbuttons.png", "text": "The 'Show Plots' switch displays graphs of our 100 samples (various ingredient ratios).\nThis provides a visual representation of the calculated results."},
+            {"image": "tutorial_valid_output+plots.png", "text": "This is how a possible recipe output looks like.\nYou will see the mean and standard deviation of the ingredients in the recipe.\nAdditionally, you will see a plot of the ingredients in the recipe.\nThis helps you to visualize the ingredient ratios and their deviations."},            
+            {"image": "tutorial_ai_output.png", "text": "Here you can see the ai-output button that explains how to make actually make the desired dish."},
             {"image": "tutorial_add_and_remove_button.png", "text": "The blue and red buttons at the bottom right add or remove input rows.\nHere you can enter ingredient names and their quantities in decimal form."},
             {"image": "tutorial_compute_button.png", "text": "The green button at the bottom left starts the calculation.\nThis is the most important step to analyze the entered ingredient ratios and get the results."},
+            {"image": "tutorial_new_recipe.png", "text": "The 'New Recipe' button at the top left clears all outputs and lets you start fresh.\nThis is useful when you want to create a new recipe from scratch."},
+            {"image": "tutorial_toggle_darkmode.png", "text": "This button switches the appearance of the page between a light and dark theme according to your preference."},
             {"image": "tutorial_tutorial_button.png", "text": "The 'i' button brings you back to the tutorial.\nThis is helpful if you need a refresher on how to use the application."}
         ]
         self.current_slide = 0
@@ -72,25 +73,13 @@ class TutorialWindow:
                     ft.Row([close_button],
                             alignment=ft.MainAxisAlignment.END,
                     ),
-                    ft.Container(content=self.image, alignment=ft.alignment.center, expand=True),
-                    ft.Container(
-                        content=ft.Row([ft.Container(height=tutorial_height*0.5),
-                                        ft.Container(content=self.text, alignment=ft.alignment.center, expand=True)
-                                        ],
-                        alignment=ft.alignment.center,
-                        ),
-                        alignment=ft.alignment.center,
-                        expand=True
-                    ),
-                    ft.Container(
-                        ft.Row([prev_button, next_button],
+                    ft.Container(content=self.image, alignment=ft.alignment.center, expand=3),
+                    ft.Container(content=self.text, alignment=ft.alignment.center, expand=1),
+                    ft.Row([prev_button, next_button],
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                            vertical_alignment=ft.CrossAxisAlignment.END
                         ),
-                    )
                 ]),
                 alignment=ft.alignment.center,
-                expand=True
             )
         )
         self.page.dialog.open = True
