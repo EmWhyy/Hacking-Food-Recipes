@@ -458,6 +458,8 @@ class MainPage:
         
 
         #get maximum value of the inputs and check if its over 100%
+        if values_input[0] == None:
+            return True
 
         temp = values_input.copy()
         for ind in range(len(values_input)):
@@ -489,11 +491,14 @@ class MainPage:
         
     def output(self, samples, ingredients):
 
-        mean_sample = np.mean(samples, axis=0)
+        self.mean_sample = np.mean(samples, axis=0)
         std_sample = np.std(samples, axis=0)
         textSize = 15  
         recipe_name = ft.Text("Dish: " + self.recipe_name.value, theme_style=ft.TextThemeStyle.TITLE_MEDIUM)
         rows = []
+
+        self.name = self.recipe_name.value
+        self.ingredients = ingredients
 
         # catching wrong input for the dish amount
         whole_amount = self.recipe_whole_amount.value
@@ -506,8 +511,8 @@ class MainPage:
         for i, ingredient in enumerate(ingredients):
             rows.append(ft.DataRow(cells=[
                 ft.DataCell(ft.Text(ingredient, size=textSize)),
-                ft.DataCell(ft.Text(f"{round(mean_sample[i] * int(whole_amount))}g", size=textSize)),
-                ft.DataCell(ft.Text(f"{mean_sample[i] * 100:5.2g}%", size=textSize)),
+                ft.DataCell(ft.Text(f"{round(self.mean_sample[i] * int(whole_amount))}g", size=textSize)),
+                ft.DataCell(ft.Text(f"{self.mean_sample[i] * 100:5.2g}%", size=textSize)),
                 ft.DataCell(ft.Text(f"+/- {2 * std_sample[i] * 100:4.2f}%", size=textSize))
             ]))
             output_table = ft.DataTable(
@@ -536,8 +541,8 @@ class MainPage:
         print(prompt)
         recipe = self.model.getRecipe(prompt)
         print(recipe)
-        self.text_elements.append(Text(recipe, size = 11))
-        self.page.add(self.text_elements[-1])
+        
+
 
         
     def delete_output_text(self):
