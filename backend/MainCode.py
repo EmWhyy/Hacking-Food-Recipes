@@ -9,6 +9,7 @@ from tueplots.constants.color import rgb
 from scipy.optimize import linprog
 import flet as ft
 import os
+from io import BytesIO
 #import data.DataManager as DataManager
 import logging
 from time import sleep
@@ -132,7 +133,7 @@ def MCMC(D, A, a, B, b,page: ft.Page, num_iter=int(1e7), thinning=int(1e5)):
     xi = x0
     
     # show progress bar in flet UI
-    loading_bar = ft.ProgressBar(width=610)
+    loading_bar = ft.ProgressBar()
     page.add(loading_bar)
     
     for i in tqdm(range(num_iter - 1)):
@@ -187,34 +188,8 @@ def plot_sample(SAMPLES, Zutaten, D, path):
     ax.set_yticklabels(Zutaten)
     cb = fig.colorbar(im)
     cb.set_label(r"$\log_{10} x_i$")
-    plt.savefig(os.path.join(path, "Samples.png"))
-    plt.close('all')  # Close the plot
-
-def plot_graph(SAMPLES, path):
-    plt.rcParams['font.family'] = 'Arial'
-    fig, ax = plt.subplots()
-    if SAMPLES[1].all() == SAMPLES[2].all() == SAMPLES[3].all() == SAMPLES[4].all():
-        return
-    for i in range(min(4, len(SAMPLES[1]))):
-        ax.plot(acf(SAMPLES[:, i]))
-
-    ax.axhline(0)
-    plt.savefig(os.path.join(path, "graph.png"))
-    plt.close('all')  # Close the plot
-
-def plot_matrix(A, B, path):
-    plt.rcParams.update(bundles.beamer_moml(rel_height=0.5))
-    plt.rcParams['font.family'] = 'Arial'
-    fig, axs = plt.subplots(1, 2)
-    imA = axs[0].imshow(A, vmin=-1, vmax=1)
-    axs[0].set_title("A")
-    imB = axs[1].imshow(B, vmin=-1, vmax=1)
-    axs[1].set_title("B")
-    plt.savefig(os.path.join(path, "matrices.png"))
-    plt.close('all')  # Close the plot
-
-
-
+    # plt.savefig(os.path.join(path, "Samples.png"))
+    # plt.close('all')  # Close the plot
 
 # Zutaten = [
 #     "gek. Hülsenfrüchte (rote & braune Berglinsen)",
