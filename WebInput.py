@@ -57,7 +57,6 @@ class TutorialWindow:
         tutorial_height = self.page.window_height * 0.7
     
         self.page.dialog = ft.AlertDialog(
-            modal=True,
             content=ft.Container(
                 width=tutorial_width,
                 height=tutorial_height,
