@@ -25,15 +25,14 @@ class TutorialWindow:
             {"image": "tutorial_toggle_plotbuttons.png", "text": "The 'Show Plots' switch displays graphs of our 100 samples (various ingredient ratios).\nThis provides a visual representation of the calculated results."},
             {"image": "tutorial_add_and_remove_button.png", "text": "The blue and red buttons at the bottom right add or remove input rows.\nHere you can enter ingredient names and their quantities in decimal form."},
             {"image": "tutorial_compute_button.png", "text": "The green button at the bottom left starts the calculation.\nThis is the most important step to analyze the entered ingredient ratios and get the results."},
-            {"image": "tutorial_tutorial_button.png", "text": "The 'i' button brings you back to the tutorial.\nThis is helpful if you need a refresher on how to use the application."},
-
+            {"image": "tutorial_tutorial_button.png", "text": "The 'i' button brings you back to the tutorial.\nThis is helpful if you need a refresher on how to use the application."}
         ]
         self.current_slide = 0
         self.image = ft.Image(src=self.slides[self.current_slide]["image"])
         self.text = ft.Text(self.slides[self.current_slide]["text"])
         self.dialog = None
 
-    def close_tutorial(self, e):
+    def close_tutorial(self, e=None):
         self.page.dialog.open = False
         self.page.update()
 
@@ -41,7 +40,8 @@ class TutorialWindow:
         slide = self.slides[self.current_slide]
         self.image.src = slide["image"]
         self.text.value = slide["text"]
-        self.page.update()
+        self.image.update()
+        self.text.update()
 
     def next_slide(self, e):
         if self.current_slide < len(self.slides) - 1:
@@ -57,18 +57,39 @@ class TutorialWindow:
         close_button = ft.IconButton(icon=ft.icons.CLOSE, on_click=self.close_tutorial)
         prev_button = ft.IconButton(icon=ft.icons.CHEVRON_LEFT, on_click=self.previous_slide)
         next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=self.next_slide)
-
+        
+        # Calculate window size based on the main window size
+        tutorial_width = self.page.window_width * 0.7
+        tutorial_height = self.page.window_height * 0.7
+    
         self.page.dialog = ft.AlertDialog(
-            modal=True,
             content=ft.Container(
+                width=tutorial_width,
+                height=tutorial_height,
+                padding=ft.padding.all(10),
                 content=ft.Column([
-                    ft.Row([ft.Container(), close_button], alignment=ft.MainAxisAlignment.END),
-                    ft.Container(content=ft.Column([self.image, self.text]),alignment=ft.alignment.center,expand=True),
-                    ft.Row([prev_button, next_button], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)          
+                    ft.Row([close_button],
+                            alignment=ft.MainAxisAlignment.END,
+                    ),
+                    ft.Container(content=self.image, alignment=ft.alignment.center, expand=True),
+                    ft.Container(
+                        content=ft.Row([ft.Container(height=tutorial_height*0.5),
+                                        ft.Container(content=self.text, alignment=ft.alignment.center, expand=True)
+                                        ],
+                        alignment=ft.alignment.center,
+                        ),
+                        alignment=ft.alignment.center,
+                        expand=True
+                    ),
+                    ft.Container(
+                        ft.Row([prev_button, next_button],
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                            vertical_alignment=ft.CrossAxisAlignment.END
+                        ),
+                    )
                 ]),
                 alignment=ft.alignment.center,
-                width=1200,
-                height=800
+                expand=True
             )
         )
         self.page.dialog.open = True
