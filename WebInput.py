@@ -133,7 +133,7 @@ class MainPage:
         try:
             # Check if the input is empty
             if e.control.value.strip() == "": 
-                e.control.border_color = None  
+                e.control.border_color = "white"
                 e.control.helper_text = None
             else:
                 input = float(e.control.value)
@@ -570,6 +570,7 @@ class MainPage:
     # delete all output text and plot
     def new_recipe(self, e):
         self.recipe_name.value = ""
+        self.recipe_whole_amount.value = ""
         self.remove_all_output(e)
         if self.input_rows:
             for row in self.input_rows:
