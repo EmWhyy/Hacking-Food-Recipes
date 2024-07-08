@@ -106,9 +106,10 @@ class MainPage:
         self.computing = False
         self.model = createRecipe.Model()
         self.name = None
-        self.ingredients = None
+        self.ingredients = []
         self.mean_sample = None
         self.ai_output = None
+        self.SAMPLE = None
         
 # Input region 
 
@@ -175,19 +176,19 @@ class MainPage:
 # Plot region
  # Function to show the plot
  
-    def compute_plot(self, SAMPLES, ingredients):
+    def compute_plot(self):
         color = "white" if self.page.theme_mode == "dark" else "black"
         
-        mean_sample = np.mean(SAMPLES, axis=0)
-        std_sample = np.std(SAMPLES, axis=0)
+        mean_sample = np.mean(self.SAMPLES, axis=0)
+        std_sample = np.std(self.SAMPLES, axis=0)
         
         fig, ax = plt.subplots()
         
         fig.patch.set_facecolor('none')
         ax.set_facecolor('none')
         
-        ax.bar(ingredients, mean_sample * 100, align='center', color='#0b105c', alpha=0.7, ecolor='none', capsize=10)
-        ax.errorbar(ingredients, mean_sample * 100, yerr=std_sample * 100, fmt='none', ecolor='#FF5722', capsize=5)
+        ax.bar(self.ingredients, mean_sample * 100, align='center', color='#0b105c', alpha=0.7, ecolor='none', capsize=10)
+        ax.errorbar(self.ingredients, mean_sample * 100, yerr=std_sample * 100, fmt='none', ecolor='#FF5722', capsize=5)
 
 
         ax.set_ylabel('Proportion of Ingredients', color=color)
@@ -368,15 +369,15 @@ class MainPage:
         # get the inputs from the user
         inputs = self.get_inputs()
 
-        ingredients = []
+        self.ingredients = []
         empty_counter = 1
         # fill missing ingredient names with "ingredient miss x"
         for item in inputs:
             if item[0] == "":
-                ingredients.append(f"ingredient miss {empty_counter}")
+                self.ingredients.append(f"ingredient miss {empty_counter}")
                 empty_counter += 1
             else:
-                ingredients.append(item[0])
+                self.ingredients.append(item[0])
         
         try:
             values_input = [float(item[1].strip())/100 if item[1].strip() != '' else None for item in inputs]
@@ -389,7 +390,7 @@ class MainPage:
         if Nutrients == None:
             Nutrients = [0,0,0,0,0,0]
 
-        if not self.validate_input(values_input,ingredients):
+        if not self.validate_input(values_input):
             return
 
         # set the computing flag to True
@@ -398,17 +399,17 @@ class MainPage:
         # delete the output text and the plot
         self.remove_all_output(e)
         
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
+        self.SAMPLES = Input.createMatrices(self.ingredients, values_input, Nutrients, self.page)
        
         # Output the results
-        self.output(SAMPLES,ingredients)
-        self.compute_plot(SAMPLES, ingredients)
+        self.output()
+        self.compute_plot()
 
         # set the computing flag to False
         self.computing = False 
 
    
-    def validate_input(self, values_input, ingredients):
+    def validate_input(self, values_input):
         max_index = len(values_input) - 1
 
         #if every amount is given
@@ -480,26 +481,25 @@ class MainPage:
             return False
         
         # check if the ingredient names are unique
-        n = len(ingredients)
+        n = len(self.ingredients)
         for i in range(n):
             for j in range(i + 1, n):
-                if ingredients[i] == ingredients[j]:
+                if self.ingredients[i] == self.ingredients[j]:
                     self.popup_snackbar("Please enter non-repeating ingredient names", ft.colors.RED_200)
                     return False
      
         return True
         
         
-    def output(self, samples, ingredients):
+    def output(self):
 
-        self.mean_sample = np.mean(samples, axis=0)
-        std_sample = np.std(samples, axis=0)
+        self.mean_sample = np.mean(self.SAMPLES, axis=0)
+        std_sample = np.std(self.SAMPLES, axis=0)
         textSize = 15  
         recipe_name = ft.Text("Dish: " + self.recipe_name.value, theme_style=ft.TextThemeStyle.TITLE_MEDIUM)
         rows = []
 
         self.name = self.recipe_name.value
-        self.ingredients = ingredients
 
         # catching wrong input for the dish amount
         whole_amount = self.recipe_whole_amount.value
@@ -509,7 +509,7 @@ class MainPage:
             whole_amount = "100"
             self.popup_snackbar("Please enter a number for the dish amount", ft.colors.RED_200)
             
-        for i, ingredient in enumerate(ingredients):
+        for i, ingredient in enumerate(self.ingredients):
             rows.append(ft.DataRow(cells=[
                 ft.DataCell(ft.Text(ingredient, size=textSize)),
                 ft.DataCell(ft.Text(f"{round(self.mean_sample[i] * int(whole_amount))}g", size=textSize)),
@@ -543,12 +543,21 @@ class MainPage:
         if self.ai_output is not None:
             self.page.remove(self.ai_output)
             self.ai_output = None
+            
+        self.remove_plot()
         prompt = createRecipe.createPrompt(self.name, self.ingredients, self.mean_sample)
         print(prompt)
         recipe = self.model.getRecipe(prompt)
         print(recipe)
-        self.ai_output = ft.Text(recipe)
+        test = ft.Text(f"AI Output:", weight=ft.FontWeight.BOLD, size=15)
+        reccipe = ft.Text(recipe, weight=ft.FontWeight.W_400, size=15)
+        self.ai_output = ft.Container(
+            content=ft.Column([test, reccipe]),
+            alignment=ft.alignment.center,
+            padding=ft.padding.all(20),
+        )
         self.page.add(self.ai_output)
+        self.compute_plot()
         
 
 
@@ -556,8 +565,9 @@ class MainPage:
     def delete_output_text(self):
         if self.text_elements is not None:
             self.page.remove(self.text_elements)
-            self.page.remove(self.ai_output)
-            self.ai_output = None
+            if self.ai_output is not None:
+                self.page.remove(self.ai_output)
+                self.ai_output = None
             self.text_elements = None
 
                         
