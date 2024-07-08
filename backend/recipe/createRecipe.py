@@ -11,8 +11,11 @@ class Model:
         return self.model(text)
     
     def getRecipe(self, prompt):
-        output = self.__createRecipe(prompt)
-        return output
+            output = self.__createRecipe(prompt)[0]['generated_text']
+            output = output.replace('u00b0', '°f').replace('u00b', '°f')
+            if output == None or output == "":
+                return "Error: Couldnt generate recipe. Please try again."
+            return output
     
 def createPrompt(recipeName, ingredients, meanOfSamples):
     prompt = f"Create a recipe for: Title {recipeName} Ingredients: "

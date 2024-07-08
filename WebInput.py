@@ -108,14 +108,14 @@ class MainPage:
         self.name = None
         self.ingredients = None
         self.mean_sample = None
+        self.ai_output = None
         
 # Input region 
 
     # Function to add a row
     def add_row(self, e):
 
-
-        if (self.plot is not None) or (self.text_elements is not None):
+        if (self.plot is not None) or (self.text_elements is not None) or (self.ai_output is not None):
             self.remove_all_output(e)
 
         name_input = ft.TextField(
@@ -159,7 +159,7 @@ class MainPage:
     # Function to delete a row
     def delete_row(self, e):
         
-        if (self.plot is not None) or (self.text_elements is not None):
+        if (self.plot is not None) or (self.text_elements is not None) or (self.ai_output is not None):
             self.remove_all_output(e)
         if len(self.input_rows) > 0:
             self.page.remove(self.input_rows.pop())
@@ -300,6 +300,7 @@ class MainPage:
         toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode,col=colums_ElevatedButton)
         new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe, col=colums_ElevatedButton,)
         tutorial_button = ft.ElevatedButton(content=ft.Icon(ft.icons.INFO), on_click=lambda e: TutorialWindow(self.page).show(), col=colums_ElevatedButton)
+        ai_output_button = ft.ElevatedButton("AI output", on_click=self.createRecipe, col=colums_ElevatedButton)
 
         
         compute_button = self.create_icon_button(ft.icons.CALCULATE, 48, self.compute, "Compute")
@@ -327,7 +328,7 @@ class MainPage:
             col = {"xs": 4.584, "md":2 }
             )
         
-        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button, tutorial_button], alignment = ft.MainAxisAlignment.CENTER))
+        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,ai_output_button, tutorial_button], alignment = ft.MainAxisAlignment.CENTER))
         self.page.add(ft.ResponsiveRow([self.recipe_name, self.recipe_whole_amount], alignment = ft.MainAxisAlignment.CENTER))
 
 
@@ -533,14 +534,21 @@ class MainPage:
         
         self.page.add(self.text_elements)
 
-        self.createRecipe()
 
 
-    def createRecipe(self):
+    def createRecipe(self,e):
+        if self.name is None or self.ingredients is None or self.mean_sample is None:
+            self.popup_snackbar("There is no recipe to create", ft.colors.RED_200)
+            return
+        if self.ai_output is not None:
+            self.page.remove(self.ai_output)
+            self.ai_output = None
         prompt = createRecipe.createPrompt(self.name, self.ingredients, self.mean_sample)
         print(prompt)
         recipe = self.model.getRecipe(prompt)
         print(recipe)
+        self.ai_output = ft.Text(recipe)
+        self.page.add(self.ai_output)
         
 
 
@@ -548,6 +556,8 @@ class MainPage:
     def delete_output_text(self):
         if self.text_elements is not None:
             self.page.remove(self.text_elements)
+            self.page.remove(self.ai_output)
+            self.ai_output = None
             self.text_elements = None
 
                         
