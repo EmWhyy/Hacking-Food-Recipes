@@ -61,19 +61,19 @@ class TutorialWindow:
         next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=self.next_slide)
         
         # Calculate window size based on the main window size
-        tutorial_width = self.page.width * 0.7
-        tutorial_height = self.page.height * 0.7
+        tutorial_width = self.page.width * 0.8
+        tutorial_height = self.page.height * 0.8
     
         self.page.dialog = ft.AlertDialog(
             content=ft.Container(
                 width=tutorial_width,
                 height=tutorial_height,
-                padding=ft.padding.all(10),
+                padding=ft.padding.all(5),
                 content=ft.Column([
                     ft.Row([close_button],
                             alignment=ft.MainAxisAlignment.END,
                     ),
-                    ft.Container(content=self.image, alignment=ft.alignment.center, expand=3),
+                    ft.Container(content=self.image, alignment=ft.alignment.center, expand=2.5),
                     ft.Container(content=self.text, alignment=ft.alignment.center, expand=1),
                     ft.Row([prev_button, next_button],
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -380,6 +380,9 @@ class MainPage:
             Nutrients = [0,0,0,0,0,0]
 
         if not self.validate_input(values_input):
+            self.ingredients = None
+            self.mean_sample = None
+            self.name = None
             return
 
         # set the computing flag to True
@@ -603,5 +606,5 @@ def main(page: ft.Page):
 
 
 # Swap between the two lines below to run the app in the browser or in the terminal   
-ft.app(main, assets_dir="./backend/tutorial_pictures")   
-#ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
+# ft.app(main, assets_dir="./backend/tutorial_pictures")   
+ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
