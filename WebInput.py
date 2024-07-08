@@ -60,8 +60,8 @@ class TutorialWindow:
         next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=self.next_slide)
         
         # Calculate window size based on the main window size
-        tutorial_width = self.page.window_width * 0.7
-        tutorial_height = self.page.window_height * 0.7
+        tutorial_width = self.page.width * 0.7
+        tutorial_height = self.page.height * 0.7
     
         self.page.dialog = ft.AlertDialog(
             content=ft.Container(
@@ -603,5 +603,5 @@ def main(page: ft.Page):
 
 
 # Swap between the two lines below to run the app in the browser or in the terminal   
-ft.app(main, assets_dir="./backend/tutorial_pictures")   
-#ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
+#ft.app(main, assets_dir="./backend/tutorial_pictures")   
+ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")

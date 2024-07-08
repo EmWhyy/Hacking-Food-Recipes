@@ -29,7 +29,7 @@ def execute_mcmc(Zutaten, A, a, B, b, Nutrients, page: ft.Page):
     print(f"Test for equalities: {np.allclose(B @ x0 - b,0)}")
 
     # now we can start the MCMC loop
-    S = int(1e5)
+    S = int(1e4)
     SAMPLES = MCMC(D, A, a, B, b,page, num_iter=S, thinning=int(S / 100))
     
     # plots 
