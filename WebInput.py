@@ -68,7 +68,7 @@ class TutorialWindow:
                     ft.Container(content=self.image, alignment=ft.alignment.center, expand=True),
                     ft.Container(
                         content=ft.Row([ft.Container(height=tutorial_height*0.5),
-                                        ft.Container(content=self.text, alignment=ft.alignment.center)
+                                        ft.Container(content=self.text, alignment=ft.alignment.center, expand=True)
                                         ],
                         alignment=ft.alignment.center,
                         ),
@@ -430,5 +430,5 @@ def main(page: ft.Page):
 
 
 # Swap between the two lines below to run the app in the browser or in the terminal   
-ft.app(main, assets_dir="./backend/tutorial_pictures")   
-#ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
+#ft.app(main, assets_dir="./backend/tutorial_pictures")   
+ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
