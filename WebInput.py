@@ -330,6 +330,7 @@ class MainPage:
         new_border_color = "white" if self.page.theme_mode == "light" else "black"
         self.page.theme_mode = "dark" if self.page.theme_mode == "light" else "light"
         self.recipe_name.border_color = new_border_color
+        self.recipe_whole_amount.border_color = new_border_color
         
         for row in self.input_rows:
             name_input, amount_input = row.controls
