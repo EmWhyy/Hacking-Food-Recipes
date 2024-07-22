@@ -337,6 +337,7 @@ class MainPage:
         new_border_color = "white" if self.page.theme_mode == "light" else "black"
         self.page.theme_mode = "dark" if self.page.theme_mode == "light" else "light"
         self.recipe_name.border_color = new_border_color
+        self.recipe_whole_amount.border_color = new_border_color
         
         for row in self.input_rows:
             name_input, amount_input = row.controls
@@ -529,7 +530,7 @@ class MainPage:
 
 
     def createRecipe(self,e):
-        if self.name is None or self.ingredients is None or self.mean_sample is None:
+        if self.name is None or self.ingredients is None or self.mean_sample is None or self.text_elements is None:
             self.popup_snackbar("There is no recipe to create", ft.colors.RED_200)
             return
         if self.ai_output is not None:
