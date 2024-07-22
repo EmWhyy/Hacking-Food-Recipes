@@ -27,7 +27,6 @@ class TutorialWindow:
             {"image": "tutorial_compute_button.png", "text": "The green button at the bottom left starts the calculation.\nThis is the most important step to analyze the entered ingredient ratios and get the results."},
             {"image": "tutorial_new_recipe.png", "text": "The 'New Recipe' button at the top left clears all outputs and lets you start fresh.\nThis is useful when you want to create a new recipe from scratch."},
             {"image": "tutorial_toggle_darkmode.png", "text": "This button switches the appearance of the page between a light and dark theme according to your preference."},
-            {"image": "tutorial_tutorial_button.png", "text": "The 'i' button brings you back to the tutorial.\nThis is helpful if you need a refresher on how to use the application."}
         ]
         self.current_slide = 0
         self.image = ft.Image(src=self.slides[self.current_slide]["image"])
@@ -495,12 +494,12 @@ class MainPage:
         self.name = self.recipe_name.value
 
         # catching wrong input for the dish amount
-        whole_amount = self.recipe_whole_amount.value
+        whole_amount = self.recipe_whole_amount.value.strip()
         if whole_amount == "":
             whole_amount = "100"
         if not whole_amount.isdigit():
             whole_amount = "100"
-            self.popup_snackbar("Please enter a number for the dish amount", ft.colors.RED_200)
+            self.popup_snackbar("Please enter a valid number for the dish amount", ft.colors.RED_200)
             
         for i, ingredient in enumerate(self.ingredients):
             rows.append(ft.DataRow(cells=[
@@ -607,5 +606,5 @@ def main(page: ft.Page):
 
 
 # Swap between the two lines below to run the app in the browser or in the terminal   
-# ft.app(main, assets_dir="./backend/tutorial_pictures")   
-ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")
+ft.app(main, assets_dir="./backend/tutorial_pictures")   
+#ft.app(main, view=ft.AppView.WEB_BROWSER, assets_dir="./backend/tutorial_pictures")

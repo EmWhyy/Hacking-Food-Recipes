@@ -18,7 +18,7 @@ class Model:
             return output
     
 def createPrompt(recipeName, ingredients, meanOfSamples):
-    prompt = f"Create a recipe for: Title {recipeName} Ingredients: "
+    prompt = f"Create a detailed recipe for: Title {recipeName} Ingredients: "
     meanOfSamples = np.round(meanOfSamples, 2)
     for i, ingredient in enumerate(ingredients):
         prompt += f"{ingredient}, " if i != len(ingredients) - 1 else f" {ingredient}."
