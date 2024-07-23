@@ -1,11 +1,8 @@
 import flet as ft
 import numpy as np
-from flet import Text
 from flet.matplotlib_chart import MatplotlibChart
-
 import os
 import backend.Input as Input
-
 import matplotlib
 import matplotlib.pyplot as plt
  
@@ -33,9 +30,11 @@ class TutorialWindow:
         self.text = ft.Text(self.slides[self.current_slide]["text"])
         self.dialog = None
 
+
     def close_tutorial(self, e=None):
         self.page.dialog.open = False
         self.page.update()
+
 
     def update_slide(self):
         slide = self.slides[self.current_slide]
@@ -44,15 +43,18 @@ class TutorialWindow:
         self.image.update()
         self.text.update()
 
+
     def next_slide(self, e):
         if self.current_slide < len(self.slides) - 1:
             self.current_slide += 1
             self.update_slide()
 
+
     def previous_slide(self, e):
         if self.current_slide > 0:
             self.current_slide -= 1
             self.update_slide()
+
 
     def show(self):
         close_button = ft.IconButton(icon=ft.icons.CLOSE, on_click=self.close_tutorial)
@@ -94,11 +96,8 @@ class MainPage:
         self.computing = False
         
 # Input region 
-
     # Function to add a row
     def add_row(self, e):
-
-
         if (self.plot is not None) or (self.text_elements is not None):
             self.remove_all_output(e)
 
@@ -121,6 +120,7 @@ class MainPage:
         input_row = ft.ResponsiveRow([name_input, amount_input], alignment = ft.MainAxisAlignment.CENTER)
         self.input_rows.append(input_row)
         self.page.add(input_row)
+        
         
     # Checks the textbox input for valid numbers
     def textbox_changed(self, e):
@@ -148,6 +148,7 @@ class MainPage:
         if len(self.input_rows) > 0:
             self.page.remove(self.input_rows.pop())
 
+
     def get_inputs(self):
         inputs = []
         for row in self.input_rows:
@@ -158,7 +159,6 @@ class MainPage:
 
 # Plot region
  # Function to show the plot
- 
     def compute_plot(self, SAMPLES, ingredients):
         color = "white" if self.page.theme_mode == "dark" else "black"
         
@@ -257,18 +257,16 @@ class MainPage:
         # self.plot = panel
         # self.page.add(self.plot)
         
+
     def remove_plot(self):
         if self.plot is not None and self.plot in self.page.controls:
             self.page.remove(self.plot)
             self.page.update()
             self.plot = None
         
-                
-
 # Plot region end
 
 # main page region
-   
     def build(self):
         # page settings
         self.page.scroll = ft.ScrollMode.ADAPTIVE
@@ -315,7 +313,6 @@ class MainPage:
         self.page.add(ft.ResponsiveRow([self.recipe_name, self.recipe_whole_amount], alignment = ft.MainAxisAlignment.CENTER))
 
 
- 
     # Function to create a iconbutton
     def create_icon_button(self, icon, icon_size, on_click, tooltip):
         return ft.IconButton(
@@ -324,6 +321,7 @@ class MainPage:
             on_click=on_click,
             tooltip=tooltip
         )
+
 
     def toggle_dark_mode(self, e):
         self.page.auto_scroll = False
@@ -524,9 +522,7 @@ class MainPage:
         self.remove_plot()
         self.delete_output_text()
         
-        
 
-        
     # delete all output text and plot
     def new_recipe(self, e):
         self.recipe_name.value = ""
@@ -537,6 +533,7 @@ class MainPage:
                 self.page.update()
             self.input_rows = []
         self.page.update()
+    
     
     # Function to show a snackbar which pops up from the bottom of the screen and shows a message
     def popup_snackbar(self, text, color):

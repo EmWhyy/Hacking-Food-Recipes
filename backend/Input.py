@@ -2,10 +2,6 @@ import backend.MainCode as MainCode
 import numpy as np
 import flet as ft
 from matplotlib import pyplot as plt
-from tueplots import bundles
-from tueplots.constants.color import rgb
-
-
 
 # Function to create the needed Equality and Inequality matrices
 # this function might need to be changed in the future when we decide to also consider the Nutritional values of the products
@@ -14,12 +10,8 @@ def createMatrices(Ingredients, givenAmounts, Nutrients, page: ft.Page):
     if testResult is not None:
         result = testResult
     else:
-        plt.rcParams.update(bundles.beamer_moml())
-        plt.rcParams.update({"figure.dpi": 200})
-
         # Number of Ingredients
         D = len(Ingredients)
-        print(f"{D} ingredients in total")
 
         # WE NEED 2D - 1 INEQUALITIES:
         # * all variables should be >0: (D inequality constraints)
@@ -85,9 +77,6 @@ def checkForSimpleSolutions(Ingredients, givenAmounts, Nutrients, page: ft.Page)
             else:
                 temp2[ind] = 0
 
-    # print(givenAmounts)
-    # print(temp1)
-    # print(temp2)
 
     if(givenAmounts.count(None) == 1):
         # Plots fehlen für diesen Fall noch
@@ -106,24 +95,3 @@ def checkForSimpleSolutions(Ingredients, givenAmounts, Nutrients, page: ft.Page)
         result = np.array([temp2])
     
     return result
-
-
-
-
-#--------------------------------------------------------------
-# Example
-
-Ingredients = [
-        "gek. Hülsenfrüchte (braune Berglinsen)",
-        "Kokosfett",
-        "Sonnenblumenöl",
-        "geröstete Zwiebeln (in Sonnenblumenöl)",
-        "Zitronensaft",
-        "Gewürze",
-        "Agavendicksaft",
-        "geräuchertes Meersalz",
-    ]
-givenAmounts = [0.63, None, None, None, None, None, None, 0.016]
-
-#A, a, B, b = createMatrices(Ingredients, givenAmounts)
-# MainCode.Main(Ingredients, A, a, B, b)
