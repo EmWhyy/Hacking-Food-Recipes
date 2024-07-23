@@ -3,6 +3,8 @@ import numpy as np
 from flet.matplotlib_chart import MatplotlibChart
 import os
 import backend.Input as Input
+import backend.recipe.createRecipe as createRecipe
+
 import matplotlib
 import matplotlib.pyplot as plt
  
@@ -18,12 +20,11 @@ class TutorialWindow:
             {"image": "tutorial_dish_amount.png", "text": "Here you can input the amount of the dish in grams.\nThis is useful to calculate the amount of each ingredient in the recipe.\nIf you don't enter a value, the default value is 100 grams."},
             {"image": "tutorial_valid_input.png", "text": "Here you can input the ingredients of your recipe along with their quantities.\nEnter the quantities as decimal numbers (e.g., 0.6 for 60%).\nThis forms the basis for the recipe calculations."},
             {"image": "tutorial_valid_output+plots.png", "text": "This is how a possible recipe output looks like.\nYou will see the mean and standard deviation of the ingredients in the recipe.\nAdditionally, you will see a plot of the ingredients in the recipe.\nThis helps you to visualize the ingredient ratios and their deviations."},            
-            {"image": "tutorial_ai_output.png", "text": "Here you can see the ai-output button that explains how to make actually make the desired dish."},
+            {"image": "tutorial_ai_output.png", "text": "Here you can see the ai-output button (at the top) that explains how to make actually make the desired dish."},
             {"image": "tutorial_add_and_remove_button.png", "text": "The blue and red buttons at the bottom right add or remove input rows.\nHere you can enter ingredient names and their quantities in decimal form."},
             {"image": "tutorial_compute_button.png", "text": "The green button at the bottom left starts the calculation.\nThis is the most important step to analyze the entered ingredient ratios and get the results."},
             {"image": "tutorial_new_recipe.png", "text": "The 'New Recipe' button at the top left clears all outputs and lets you start fresh.\nThis is useful when you want to create a new recipe from scratch."},
             {"image": "tutorial_toggle_darkmode.png", "text": "This button switches the appearance of the page between a light and dark theme according to your preference."},
-            {"image": "tutorial_tutorial_button.png", "text": "The 'i' button brings you back to the tutorial.\nThis is helpful if you need a refresher on how to use the application."}
         ]
         self.current_slide = 0
         self.image = ft.Image(src=self.slides[self.current_slide]["image"])
@@ -62,19 +63,19 @@ class TutorialWindow:
         next_button = ft.IconButton(icon=ft.icons.CHEVRON_RIGHT, on_click=self.next_slide)
         
         # Calculate window size based on the main window size
-        tutorial_width = self.page.window_width * 0.7
-        tutorial_height = self.page.window_height * 0.7
+        tutorial_width = self.page.width * 0.8
+        tutorial_height = self.page.height * 0.8
     
         self.page.dialog = ft.AlertDialog(
             content=ft.Container(
                 width=tutorial_width,
                 height=tutorial_height,
-                padding=ft.padding.all(10),
+                padding=ft.padding.all(5),
                 content=ft.Column([
                     ft.Row([close_button],
                             alignment=ft.MainAxisAlignment.END,
                     ),
-                    ft.Container(content=self.image, alignment=ft.alignment.center, expand=3),
+                    ft.Container(content=self.image, alignment=ft.alignment.center, expand=2.5),
                     ft.Container(content=self.text, alignment=ft.alignment.center, expand=1),
                     ft.Row([prev_button, next_button],
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -94,11 +95,18 @@ class MainPage:
         self.input_rows = []
         self.plot = None
         self.computing = False
+        self.model = createRecipe.Model()
+        self.name = None
+        self.ingredients = []
+        self.mean_sample = None
+        self.ai_output = None
+        self.SAMPLE = None
         
 # Input region 
     # Function to add a row
     def add_row(self, e):
-        if (self.plot is not None) or (self.text_elements is not None):
+
+        if (self.plot is not None) or (self.text_elements is not None) or (self.ai_output is not None):
             self.remove_all_output(e)
 
         name_input = ft.TextField(
@@ -127,7 +135,7 @@ class MainPage:
         try:
             # Check if the input is empty
             if e.control.value.strip() == "": 
-                e.control.border_color = None  
+                e.control.border_color = "white"
                 e.control.helper_text = None
             else:
                 input = float(e.control.value)
@@ -143,7 +151,7 @@ class MainPage:
     # Function to delete a row
     def delete_row(self, e):
         
-        if (self.plot is not None) or (self.text_elements is not None):
+        if (self.plot is not None) or (self.text_elements is not None) or (self.ai_output is not None):
             self.remove_all_output(e)
         if len(self.input_rows) > 0:
             self.page.remove(self.input_rows.pop())
@@ -159,19 +167,20 @@ class MainPage:
 
 # Plot region
  # Function to show the plot
-    def compute_plot(self, SAMPLES, ingredients):
+ 
+    def compute_plot(self):
         color = "white" if self.page.theme_mode == "dark" else "black"
         
-        mean_sample = np.mean(SAMPLES, axis=0)
-        std_sample = np.std(SAMPLES, axis=0)
+        mean_sample = np.mean(self.SAMPLES, axis=0)
+        std_sample = np.std(self.SAMPLES, axis=0)
         
         fig, ax = plt.subplots()
         
         fig.patch.set_facecolor('none')
         ax.set_facecolor('none')
         
-        ax.bar(ingredients, mean_sample * 100, align='center', color='#0b105c', alpha=0.7, ecolor='none', capsize=10)
-        ax.errorbar(ingredients, mean_sample * 100, yerr=std_sample * 100, fmt='none', ecolor='#FF5722', capsize=5)
+        ax.bar(self.ingredients, mean_sample * 100, align='center', color='#0b105c', alpha=0.7, ecolor='none', capsize=10)
+        ax.errorbar(self.ingredients, mean_sample * 100, yerr=std_sample * 100, fmt='none', ecolor='#FF5722', capsize=5)
 
 
         ax.set_ylabel('Proportion of Ingredients', color=color)
@@ -282,6 +291,7 @@ class MainPage:
         toggle_dark_mode_button = ft.ElevatedButton("Toggle Dark Mode", on_click=self.toggle_dark_mode,col=colums_ElevatedButton)
         new_recipe_button = ft.ElevatedButton("New Recipe", on_click=self.new_recipe, col=colums_ElevatedButton,)
         tutorial_button = ft.ElevatedButton(content=ft.Icon(ft.icons.INFO), on_click=lambda e: TutorialWindow(self.page).show(), col=colums_ElevatedButton)
+        ai_output_button = ft.ElevatedButton("AI output", on_click=self.createRecipe, col=colums_ElevatedButton)
 
         
         compute_button = self.create_icon_button(ft.icons.CALCULATE, 48, self.compute, "Compute")
@@ -309,7 +319,7 @@ class MainPage:
             col = {"xs": 4.584, "md":2 }
             )
         
-        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button, tutorial_button], alignment = ft.MainAxisAlignment.CENTER))
+        self.page.add(ft.ResponsiveRow([new_recipe_button,toggle_dark_mode_button,ai_output_button, tutorial_button], alignment = ft.MainAxisAlignment.CENTER))
         self.page.add(ft.ResponsiveRow([self.recipe_name, self.recipe_whole_amount], alignment = ft.MainAxisAlignment.CENTER))
 
 
@@ -350,15 +360,15 @@ class MainPage:
         # get the inputs from the user
         inputs = self.get_inputs()
 
-        ingredients = []
+        self.ingredients = []
         empty_counter = 1
         # fill missing ingredient names with "ingredient miss x"
         for item in inputs:
             if item[0] == "":
-                ingredients.append(f"ingredient miss {empty_counter}")
+                self.ingredients.append(f"ingredient miss {empty_counter}")
                 empty_counter += 1
             else:
-                ingredients.append(item[0])
+                self.ingredients.append(item[0])
         
         try:
             values_input = [float(item[1].strip())/100 if item[1].strip() != '' else None for item in inputs]
@@ -371,7 +381,10 @@ class MainPage:
         if Nutrients == None:
             Nutrients = [0,0,0,0,0,0]
 
-        if not self.validate_input(values_input,ingredients):
+        if not self.validate_input(values_input):
+            self.ingredients = None
+            self.mean_sample = None
+            self.name = None
             return
 
         # set the computing flag to True
@@ -380,17 +393,17 @@ class MainPage:
         # delete the output text and the plot
         self.remove_all_output(e)
         
-        SAMPLES = Input.createMatrices(ingredients, values_input, Nutrients, self.page)
+        self.SAMPLES = Input.createMatrices(self.ingredients, values_input, Nutrients, self.page)
        
         # Output the results
-        self.output(SAMPLES,ingredients)
-        self.compute_plot(SAMPLES, ingredients)
+        self.output()
+        self.compute_plot()
 
         # set the computing flag to False
         self.computing = False 
 
    
-    def validate_input(self, values_input, ingredients):
+    def validate_input(self, values_input):
         max_index = len(values_input) - 1
 
         #if every amount is given
@@ -441,6 +454,8 @@ class MainPage:
         
 
         #get maximum value of the inputs and check if its over 100%
+        if values_input[0] == None:
+            return True
 
         temp = values_input.copy()
         for ind in range(len(values_input)):
@@ -460,37 +475,39 @@ class MainPage:
             return False
         
         # check if the ingredient names are unique
-        n = len(ingredients)
+        n = len(self.ingredients)
         for i in range(n):
             for j in range(i + 1, n):
-                if ingredients[i] == ingredients[j]:
+                if self.ingredients[i] == self.ingredients[j]:
                     self.popup_snackbar("Please enter non-repeating ingredient names", ft.colors.RED_200)
                     return False
      
         return True
         
         
-    def output(self, samples, ingredients):
+    def output(self):
 
-        mean_sample = np.mean(samples, axis=0)
-        std_sample = np.std(samples, axis=0)
+        self.mean_sample = np.mean(self.SAMPLES, axis=0)
+        std_sample = np.std(self.SAMPLES, axis=0)
         textSize = 15  
         recipe_name = ft.Text("Dish: " + self.recipe_name.value, theme_style=ft.TextThemeStyle.TITLE_MEDIUM)
         rows = []
 
+        self.name = self.recipe_name.value
+
         # catching wrong input for the dish amount
-        whole_amount = self.recipe_whole_amount.value
+        whole_amount = self.recipe_whole_amount.value.strip()
         if whole_amount == "":
             whole_amount = "100"
         if not whole_amount.isdigit():
             whole_amount = "100"
-            self.popup_snackbar("Please enter a number for the dish amount", ft.colors.RED_200)
+            self.popup_snackbar("Please enter a valid number for the dish amount", ft.colors.RED_200)
             
-        for i, ingredient in enumerate(ingredients):
+        for i, ingredient in enumerate(self.ingredients):
             rows.append(ft.DataRow(cells=[
                 ft.DataCell(ft.Text(ingredient, size=textSize)),
-                ft.DataCell(ft.Text(f"{round(mean_sample[i] * int(whole_amount))}g", size=textSize)),
-                ft.DataCell(ft.Text(f"{mean_sample[i] * 100:5.2g}%", size=textSize)),
+                ft.DataCell(ft.Text(f"{round(self.mean_sample[i] * int(whole_amount))}g", size=textSize)),
+                ft.DataCell(ft.Text(f"{self.mean_sample[i] * 100:5.2g}%", size=textSize)),
                 ft.DataCell(ft.Text(f"+/- {2 * std_sample[i] * 100:4.2f}%", size=textSize))
             ]))
             output_table = ft.DataTable(
@@ -511,10 +528,40 @@ class MainPage:
         
         self.page.add(self.text_elements)
 
+
+
+    def createRecipe(self,e):
+        if self.name is None or self.ingredients is None or self.mean_sample is None or self.text_elements is None:
+            self.popup_snackbar("There is no recipe to create", ft.colors.RED_200)
+            return
+        if self.ai_output is not None:
+            self.page.remove(self.ai_output)
+            self.ai_output = None
+            
+        self.remove_plot()
+        prompt = createRecipe.createPrompt(self.name, self.ingredients, self.mean_sample)
+        print(prompt)
+        recipe = self.model.getRecipe(prompt)
+        print(recipe)
+        test = ft.Text(f"AI Output:", weight=ft.FontWeight.BOLD, size=15)
+        reccipe = ft.Text(recipe, weight=ft.FontWeight.W_400, size=15)
+        self.ai_output = ft.Container(
+            content=ft.Column([test, reccipe]),
+            alignment=ft.alignment.center,
+            padding=ft.padding.all(20),
+        )
+        self.page.add(self.ai_output)
+        self.compute_plot()
+        
+
+
         
     def delete_output_text(self):
         if self.text_elements is not None:
             self.page.remove(self.text_elements)
+            if self.ai_output is not None:
+                self.page.remove(self.ai_output)
+                self.ai_output = None
             self.text_elements = None
 
                         
@@ -526,6 +573,7 @@ class MainPage:
     # delete all output text and plot
     def new_recipe(self, e):
         self.recipe_name.value = ""
+        self.recipe_whole_amount.value = ""
         self.remove_all_output(e)
         if self.input_rows:
             for row in self.input_rows:
